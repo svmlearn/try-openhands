@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舞队详情 - 设备管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+        }
+        .team-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        .info-value {
+            font-weight: 500;
+        }
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .device-status {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-approved {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        .time-slot-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            margin: 2px;
+            border-radius: 20px;
+            background-color: #e9ecef;
+            font-size: 12px;
+        }
+        .device-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .weekday-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .weekday-tag {
+            background-color: #e2e3e5;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+        .team-desc {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            border-left: 4px solid #6c757d;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+            border-bottom: 3px solid #0d6efd;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #FF9400 0%, #FFFFFF 93.27%);
+            width: 375px;
+            height: 812px;
+            overflow: hidden;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>舞队详情</h2>
+            <div>
+                <button class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-arrow-left"></i> 返回列表
+                </button>
+                <button class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> 编辑舞队
+                </button>
+            </div>
+        </div>
+
+        <!-- 舞队基本信息卡片 -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>基本信息</div>
+                <span class="badge bg-success">已审核</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 text-center mb-3">
+                        <img src="https://via.placeholder.com/150" alt="舞队图片" class="img-fluid rounded" style="max-width: 150px;">
+                    </div>
+                    <div class="col-md-10">
+                        <div class="team-info">
+                            <div class="info-item">
+                                <div class="info-label">舞队名称</div>
+                                <div class="info-value">广场舞</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">舞种类型</div>
+                                <div class="info-value">广场舞</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">团队人数</div>
+                                <div class="info-value">50人</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">联系电话</div>
+                                <div class="info-value">***************</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">加入时间</div>
+                                <div class="info-value">2022-02-15</div>
+                            </div>
+                        </div>
+                        <div class="team-desc">
+                            <div class="info-label mb-2">舞队简介</div>
+                            <div>静化舞蹈成立于2002年6月，原名女性舞蹈一队"缘舞者"。舞队以校企合作、编创优秀作品为宗旨。指导教师杨巧幸为优秀基层文艺工作者。舞队先后剧组校企合作文化活动300多场。作品大多反映时代生活，体现了舞蹈艺术的真善美。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页签选择 -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" id="device-tab">设备申请</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="members-tab">成员管理</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="activities-tab">活动记录</a>
+            </li>
+        </ul>
+
+        <!-- 设备申请板块 -->
+        <div id="device-content">
+            <!-- 设备申请列表卡片 -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>舞队使用设备列表</div>
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-plus-circle"></i> 新增设备申请
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover device-table">
+                            <thead>
+                                <tr>
+                                    <th>设备编号</th>
+                                    <th>设备名称</th>
+                                    <th>申请时间</th>
+                                    <th>状态</th>
+                                    <th>上次维护时间</th>
+                                    <th>累计运行时间</th>
+                                    <th>故障次数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>UL-V20240001</td>
+                                    <td>音响设备1号</td>
+                                    <td>2024-06-01</td>
+                                    <td><span class="device-status status-approved">已审批</span></td>
+                                    <td>2022-02-15</td>
+                                    <td>800小时</td>
+                                    <td>0次</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary view-schedule" data-device-id="UL-V20240001" data-device-name="音响设备1号">
+                                            <i class="bi bi-calendar3"></i> 查看排期
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>UL-V20240003</td>
+                                    <td>音响设备3号</td>
+                                    <td>2024-05-28</td>
+                                    <td><span class="device-status status-pending">待审批</span></td>
+                                    <td>2022-02-15</td>
+                                    <td>650小时</td>
+                                    <td>2次</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary view-schedule" data-device-id="UL-V20240003" data-device-name="音响设备3号">
+                                            <i class="bi bi-calendar3"></i> 查看排期
+                                        </button>
+                                        <div class="btn-group ms-1">
+                                            <button class="btn btn-sm btn-outline-success" title="审批通过">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" title="驳回申请">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设备时间安排卡片 (默认隐藏) -->
+            <div class="card mt-4" id="schedule-card" style="display: none;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>设备使用时间安排 - <span id="current-device-name">音响设备1号</span></div>
+                    <button class="btn btn-sm btn-outline-secondary" id="close-schedule">
+                        <i class="bi bi-x-lg"></i> 关闭
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- 使用周期显示 -->
+                    <div class="mb-3">
+                        <div class="info-label mb-2">使用周期</div>
+                        <div class="weekday-container">
+                            <span class="weekday-tag">周一</span>
+                            <span class="weekday-tag">周三</span>
+                            <span class="weekday-tag">周五</span>
+                        </div>
+                    </div>
+
+                    <!-- 24小时制时间段表格 -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="80">时间</th>
+                                    <th>周一</th>
+                                    <th>周二</th>
+                                    <th>周三</th>
+                                    <th>周四</th>
+                                    <th>周五</th>
+                                    <th>周六</th>
+                                    <th>周日</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>00:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>01:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>02:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>03:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>04:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>05:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>06:00</td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>07:00</td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>08:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>09:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>10:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>11:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>12:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>13:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>14:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>15:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>16:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>17:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>18:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>19:00</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>20:00</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                    <td class="table-success">广场舞</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>21:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>22:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>23:00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex align-items-center mt-2">
+                            <div class="me-3">
+                                <span class="badge bg-success me-1">&nbsp;</span> 已审批
+                            </div>
+                            <div class="me-3">
+                                <span class="badge bg-warning me-1">&nbsp;</span> 待审批
+                            </div>
+                            <div>
+                                <span class="badge bg-danger me-1">&nbsp;</span> 已驳回
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成员管理板块 (默认隐藏) -->
+        <div id="members-content" style="display: none;">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>舞队成员</div>
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-plus-circle"></i> 添加成员
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>成员姓名</th>
+                                    <th>性别</th>
+                                    <th>联系电话</th>
+                                    <th>加入时间</th>
+                                    <th>角色</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://via.placeholder.com/40" alt="头像" class="member-avatar me-2">
+                                            <span>********</span>
+                                        </div>
+                                    </td>
+                                    <td>男</td>
+                                    <td>12345678543</td>
+                                    <td>2022-01-15</td>
+                                    <td>队长</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://via.placeholder.com/40" alt="头像" class="member-avatar me-2">
+                                            <span>********</span>
+                                        </div>
+                                    </td>
+                                    <td>女</td>
+                                    <td>13456785434</td>
+                                    <td>2022-02-20</td>
+                                    <td>成员</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://via.placeholder.com/40" alt="头像" class="member-avatar me-2">
+                                            <span>********</span>
+                                        </div>
+                                    </td>
+                                    <td>男</td>
+                                    <td>13456785434</td>
+                                    <td>2022-03-05</td>
+                                    <td>成员</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://via.placeholder.com/40" alt="头像" class="member-avatar me-2">
+                                            <span>********</span>
+                                        </div>
+                                    </td>
+                                    <td>女</td>
+                                    <td>13456785434</td>
+                                    <td>2022-03-15</td>
+                                    <td>成员</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 活动记录板块 (默认隐藏) -->
+        <div id="activities-content" style="display: none;">
+            <div class="card">
+                <div class="card-header">活动记录</div>
+                <div class="card-body">
+                    <!-- 活动记录内容将在这里展示 -->
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i> 暂无活动记录
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 页签切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const deviceTab = document.getElementById('device-tab');
+            const membersTab = document.getElementById('members-tab');
+            const activitiesTab = document.getElementById('activities-tab');
+            
+            const deviceContent = document.getElementById('device-content');
+            const membersContent = document.getElementById('members-content');
+            const activitiesContent = document.getElementById('activities-content');
+            
+            // 设备时间安排相关元素
+            const viewScheduleButtons = document.querySelectorAll('.view-schedule');
+            const scheduleCard = document.getElementById('schedule-card');
+            const closeScheduleButton = document.getElementById('close-schedule');
+            const currentDeviceName = document.getElementById('current-device-name');
+            
+            // 点击查看排期按钮
+            viewScheduleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 获取设备信息
+                    const deviceId = this.getAttribute('data-device-id');
+                    const deviceName = this.getAttribute('data-device-name');
+                    
+                    // 更新当前设备名称
+                    currentDeviceName.textContent = deviceName;
+                    
+                    // 显示排期卡片
+                    scheduleCard.style.display = 'block';
+                    
+                    // 这里可以根据设备ID加载对应的排期数据
+                    // loadScheduleData(deviceId);
+                });
+            });
+            
+            // 关闭排期卡片
+            closeScheduleButton.addEventListener('click', function() {
+                scheduleCard.style.display = 'none';
+            });
+            
+            deviceTab.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 激活当前选项卡
+                deviceTab.classList.add('active');
+                membersTab.classList.remove('active');
+                activitiesTab.classList.remove('active');
+                
+                // 显示对应内容
+                deviceContent.style.display = 'block';
+                membersContent.style.display = 'none';
+                activitiesContent.style.display = 'none';
+            });
+            
+            membersTab.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 激活当前选项卡
+                deviceTab.classList.remove('active');
+                membersTab.classList.add('active');
+                activitiesTab.classList.remove('active');
+                
+                // 显示对应内容
+                deviceContent.style.display = 'none';
+                membersContent.style.display = 'block';
+                activitiesContent.style.display = 'none';
+                
+                // 隐藏排期卡片
+                scheduleCard.style.display = 'none';
+            });
+            
+            activitiesTab.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 激活当前选项卡
+                deviceTab.classList.remove('active');
+                membersTab.classList.remove('active');
+                activitiesTab.classList.add('active');
+                
+                // 显示对应内容
+                deviceContent.style.display = 'none';
+                membersContent.style.display = 'none';
+                activitiesContent.style.display = 'block';
+                
+                // 隐藏排期卡片
+                scheduleCard.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html> 

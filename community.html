@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排行榜页面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ios-blue': '#007AFF',
+                        'ios-gray': '#8E8E93',
+                        'ios-light-gray': '#F2F2F7',
+                        'ios-orange': '#FF9500',
+                        'ios-green': '#34C759',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 全局重置样式 - 确保页面100%契合框架 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        :root {
+            --brand-primary: #FF9400;      /* 经典亮橙 - 主操作 */
+            --brand-secondary: #F5846A;    /* 暖橙珊瑚色 - 点缀/进度条 */
+            --action-blue: #007AFF;        /* 经典蓝 - 次操作 */
+            --action-green: #34C759;       /* 经典绿 - 辅助操作 */
+
+            --bg-white: #FFFFFF;           /* 纯白 - 卡片背景 */
+            --bg-light: #FFF9F5;           /* 暖米色 - 页面背景 */
+            --bg-gray: #F7F2EE;            /* 暖灰色 - 元素背景 */
+            --bg-highlight: #FFEAD9;       /* 浅橙 - 选中项背景 */
+            --bg-blur: rgba(255, 249, 245, 0.9); /* 暖米色模糊背景 */
+
+            --text-primary: #333333;       /* 深灰 - 主要文字 */
+            --text-secondary: #757575;     /* 中灰 - 次要文字 */
+            --text-tips: #A39995;          /* 浅棕 - 提示文字 */
+            --text-white: #FFFFFF;         /* 白色文字 */
+            --text-link: var(--brand-primary); /* 链接色 - 主色 */
+
+            --border-base: #E5DCD8;        /* 暖灰边框/分割线 */
+            --error: #F5605C;              /* 暖红色 - 错误提示 */
+            --divider: var(--border-base); /* 统一分割线 */
+
+            /* 标签颜色 */
+            --tag-orange-text: var(--brand-primary);
+            --tag-orange-bg: #FFF3E0;
+            --tag-green-text: #4CAF50;
+            --tag-green-bg: #E8F5E9;
+            --tag-purple-text: #9C27B0;
+            --tag-purple-bg: #F3E5F5;
+            --tag-red-text: #F44336;
+            --tag-red-bg: #FFEBEE;
+            --tag-blue-text: var(--action-blue);
+            --tag-blue-bg: #E3F2FD;
+
+            /* 阴影 */
+            --shadow-color-base: rgba(51, 51, 51, 0.08);
+            --shadow-color-hover: rgba(51, 51, 51, 0.12);
+            --shadow-color-active: rgba(51, 51, 51, 0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #FF9400 0%, #FFFFFF 93.27%);
+            width: 375px;
+            height: 812px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        /* 小程序UI覆盖层 - 固定在顶部的纯白色不透明覆盖层 */
+        .miniprogram-ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 88px;
+            background-color: #FFFFFF;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 状态栏样式 */
+        .status-bar {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #1F2937;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* 小程序导航栏样式 */
+        .miniprogram-nav {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .miniprogram-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1F2937;
+        }
+
+        .miniprogram-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .miniprogram-menu {
+            color: #6B7280;
+            font-size: 18px;
+        }
+
+        .miniprogram-close {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #9CA3AF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            font-size: 12px;
+        }
+
+        .search-bar {
+            background-color: var(--bg-gray);
+            border-radius: 12px;
+            min-height: 48px;
+            color: var(--text-secondary);
+        }
+        .search-bar input {
+            color: var(--text-primary);
+            background-color: transparent;
+        }
+        .search-bar input::placeholder {
+            color: var(--text-secondary);
+        }
+        .search-bar:focus-within {
+            box-shadow: 0 0 0 3px rgba(255, 148, 0, 0.3);
+        }
+        
+        .team-card {
+            background-color: var(--bg-white);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px var(--shadow-color-base);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .team-card:active {
+            transform: scale(0.98);
+            background-color: var(--bg-gray);
+            box-shadow: 0 1px 4px var(--shadow-color-active);
+        }
+        .team-card:hover {
+            box-shadow: 0 4px 12px var(--shadow-color-hover);
+        }
+        
+        .dance-tag-base {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .dance-tag {
+            background-color: var(--tag-orange-bg);
+            color: var(--tag-orange-text);
+        }
+        .dance-tag-green {
+            background-color: var(--tag-green-bg);
+            color: var(--tag-green-text);
+        }
+        .dance-tag-purple {
+            background-color: var(--tag-purple-bg);
+            color: var(--tag-purple-text);
+        }
+        .dance-tag-red {
+            background-color: var(--tag-red-bg);
+            color: var(--tag-red-text);
+        }
+        
+        .ios-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .ios-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+        
+        .bottom-nav {
+            height: 83px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background-color: var(--bg-blur);
+            border-top: 1px solid var(--border-base);
+        }
+        .bottom-nav .text-gray-400 {
+            color: var(--text-secondary);
+        }
+        .bottom-nav .text-ios-orange {
+            color: var(--brand-primary);
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 12px;
+            color: var(--text-primary);
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background-color: var(--brand-primary);
+            border-radius: 2px;
+        }
+        
+        .action-btn {
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            min-height: 44px;
+            min-width: 100px;
+        }
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* 筛选按钮样式 */
+        .filter-btn {
+            background-color: var(--bg-white);
+            border: 2px solid var(--border-base);
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            min-height: 44px;
+            min-width: 80px;
+        }
+        .filter-btn.active {
+            background-color: var(--brand-primary);
+            color: var(--text-white);
+            border-color: var(--brand-primary);
+        }
+        .filter-btn.orange { 
+            border-color: var(--tag-orange-text); 
+            color: var(--tag-orange-text); 
+        }
+        .filter-btn.green { 
+            border-color: var(--tag-green-text); 
+            color: var(--tag-green-text); 
+        }
+        .filter-btn.purple { 
+            border-color: var(--tag-purple-text); 
+            color: var(--tag-purple-text); 
+        }
+        .filter-btn.red { 
+            border-color: var(--tag-red-text); 
+            color: var(--tag-red-text); 
+        }
+        .filter-btn:active {
+            transform: scale(0.95);
+            opacity: 0.9;
+        }
+
+        .stats-info {
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stats-info i {
+            color: var(--brand-primary);
+        }
+
+        /* 顶部地区筛选条样式 */
+        .top-location-bar {
+            background-color: var(--bg-white);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-base);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .location-selectors {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .location-select {
+            background-color: var(--bg-gray);
+            border: 1px solid var(--border-base);
+            border-radius: 8px;
+            padding: 8px 8px;
+            color: var(--text-primary);
+            font-size: 13px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23757575' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 6px center;
+            background-repeat: no-repeat;
+            background-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 70px;
+            max-width: 90px;
+        }
+        
+        .location-select:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: var(--bg-light);
+        }
+        
+        .location-select:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 2px rgba(255, 148, 0, 0.2);
+        }
+        
+        .location-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border-base);
+            background-color: var(--bg-white);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+        
+        .action-icon-btn:hover {
+            background-color: var(--bg-highlight);
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+        
+        .action-icon-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .location-btn {
+            background-color: var(--brand-primary);
+            color: var(--text-white);
+            border-color: var(--brand-primary);
+        }
+        
+        .location-btn:hover {
+            background-color: #e8840a;
+            border-color: #e8840a;
+            color: var(--text-white);
+        }
+
+        .team-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .team-image {
+            border-top-left-radius: 16px;
+            border-bottom-left-radius: 16px;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .team-card {
+            animation: fadeInUp 0.3s ease forwards;
+        }
+        .team-card:nth-child(1) { animation-delay: 0.05s; }
+        .team-card:nth-child(2) { animation-delay: 0.1s; }
+        .team-card:nth-child(3) { animation-delay: 0.15s; }
+        .team-card:nth-child(4) { animation-delay: 0.2s; }
+
+        .loading-text {
+            color: var(--text-secondary);
+        }
+
+        /* Tab切换样式 */
+        .tab-container {
+            background-color: var(--bg-white);
+            border-bottom: 1px solid var(--border-base);
+            padding: 0 16px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 0;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 16px 0;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab-btn.active {
+            color: var(--brand-primary);
+            border-bottom-color: var(--brand-primary);
+            font-weight: 600;
+        }
+        
+        .tab-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Tab内容样式 */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 活动中心占位样式 */
+        .activity-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        
+        .activity-placeholder i {
+            font-size: 64px;
+            color: var(--border-base);
+            margin-bottom: 24px;
+        }
+        
+        .activity-placeholder h3 {
+            font-size: 20px;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .activity-placeholder p {
+            font-size: 16px;
+            line-height: 1.5;
+            max-width: 280px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 小程序UI覆盖层 - 固定在顶部的纯白色区域 -->
+    <div class="miniprogram-ui-overlay">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>10:00</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>88%</span>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+        
+        <!-- 小程序导航栏 -->
+        <div class="miniprogram-nav">
+            <div class="miniprogram-title">静舞团小程序</div>
+            <div class="miniprogram-actions">
+                <i class="fas fa-ellipsis-h miniprogram-menu"></i>
+                <div class="miniprogram-close">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面内容区域 - 从系统UI下方开始，保留88px顶部空间 -->
+    <div class="pt-[88px] flex flex-col h-screen">
+        <!-- Tab切换 -->
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="teams">舞队列表</button>
+                <button class="tab-btn" data-tab="activity">活动中心</button>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 overflow-y-auto ios-scroll">
+
+            <!-- 舞队列表Tab -->
+            <div id="content-teams" class="tab-content active">
+                <!-- 搜索栏 -->
+                <div class="h-16 bg-white flex justify-center items-center px-6 border-b" style="border-color: var(--border-base);">
+                    <div class="search-bar flex-1 max-w-xs flex items-center px-4">
+                        <i class="fas fa-search text-lg"></i>
+                        <input type="text" placeholder="请输入舞队名称或领队名称" class="w-full h-full bg-transparent border-none focus:outline-none ml-3">
+                    </div>
+                </div>
+                
+                <!-- 地区级联选择器 -->
+                <div class="top-location-bar">
+                    <div class="location-selectors">
+                        <select class="location-select" id="province-select">
+                            <option value="">选择省份</option>
+                            <option value="guangdong">广东省</option>
+                            <option value="fujian">福建省</option>
+                            <option value="zhejiang">浙江省</option>
+                        </select>
+                        <select class="location-select" id="city-select" disabled>
+                            <option value="">选择城市</option>
+                        </select>
+                        <select class="location-select" id="district-select" disabled>
+                            <option value="">选择区域</option>
+                        </select>
+                    </div>
+                    <div class="location-actions">
+                        <button class="action-icon-btn location-btn" id="location-btn" title="定位">
+                            <i class="fas fa-location-arrow"></i>
+                        </button>
+                        <button class="action-icon-btn" id="reset-all-btn" title="重置">
+                            <i class="fas fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 舞种筛选按钮 -->
+                <div class="flex space-x-3 mb-6 overflow-x-auto ios-scroll pb-3 px-4">
+                    <button class="filter-btn active flex-shrink-0 rounded-full px-5 py-2">全部</button>
+                    <button class="filter-btn orange flex-shrink-0 rounded-full px-5 py-2">广场舞</button>
+                    <button class="filter-btn green flex-shrink-0 rounded-full px-5 py-2">健身操</button>
+                    <button class="filter-btn purple flex-shrink-0 rounded-full px-5 py-2">交谊舞</button>
+                    <button class="filter-btn red flex-shrink-0 rounded-full px-5 py-2">拉丁舞</button>
+                </div>
+
+                <!-- 舞队列表 -->
+                <div class="px-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="section-title text-xl font-bold">热门舞队排行</h2>
+                        <div class="stats-info">
+                            <i class="fas fa-users"></i>
+                            <span id="team-count-text">该地区共有51支舞队</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <a href="team-detail-guest.html" class="team-card flex items-start p-0 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1541532713592-79a0317b6b77?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" alt="舞队封面" class="w-28 h-28 object-cover team-image">
+                            <div class="flex-1 p-3">
+                                <h3 class="team-name mb-1">厦门轻舞飞扬舞队</h3>
+                                <div class="dance-tag dance-tag-base mb-2">
+                                    <i class="fas fa-music mr-2"></i> 广场舞
+                                </div>
+                                <p class="text-xs" style="color: var(--text-secondary);">21人 | 思明区</p>
+                            </div>
+                        </a>
+                        <a href="team-detail-guest.html" class="team-card flex items-start p-0 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1519671482727-a4d618c9efa5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" alt="舞队封面" class="w-28 h-28 object-cover team-image">
+                            <div class="flex-1 p-3">
+                                <h3 class="team-name mb-1">海湾公园国标舞团</h3>
+                                <div class="dance-tag-purple dance-tag-base mb-2">
+                                    <i class="fas fa-music mr-2"></i> 交谊舞
+                                </div>
+                                <p class="text-xs" style="color: var(--text-secondary);">45人 | 湖里区</p>
+                            </div>
+                        </a>
+                        <a href="team-detail-guest.html" class="team-card flex items-start p-0 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" alt="舞队封面" class="w-28 h-28 object-cover team-image">
+                            <div class="flex-1 p-3">
+                                <h3 class="team-name mb-1">花样年华艺术团</h3>
+                                <div class="dance-tag-green dance-tag-base mb-2">
+                                    <i class="fas fa-music mr-2"></i> 健身操
+                                </div>
+                                <p class="text-xs" style="color: var(--text-secondary);">12人 | 集美区</p>
+                            </div>
+                        </a>
+                        <a href="team-detail-guest.html" class="team-card flex items-start p-0 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80" alt="舞队封面" class="w-28 h-28 object-cover team-image">
+                            <div class="flex-1 p-3">
+                                <h3 class="team-name mb-1">白鹭洲拉丁舞俱乐部</h3>
+                                <div class="dance-tag-red dance-tag-base mb-2">
+                                    <i class="fas fa-music mr-2"></i> 拉丁舞
+                                </div>
+                                <p class="text-xs" style="color: var(--text-secondary);">33人 | 思明区</p>
+                            </div>
+                        </a>
+                    </div>
+                    <p class="text-center py-8 loading-text">~ 已加载全部 ~</p>
+                </div>
+            </div>
+
+            <!-- 活动中心Tab -->
+            <div id="content-activity" class="tab-content">
+                <div class="activity-placeholder">
+                    <i class="fas fa-calendar-star"></i>
+                    <h3>活动中心</h3>
+                    <p>签到任务、互动活动、积分排行榜等功能正在开发中，敬请期待！</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bottom-nav flex justify-around items-center pt-2 pb-5">
+            <div class="flex flex-col items-center">
+                <i class="fas fa-music text-gray-400 text-3xl"></i>
+                <span class="text-base mt-1 text-gray-400 text-center">播放</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <i class="fas fa-trophy text-ios-orange text-3xl"></i>
+                <span class="text-base mt-1 text-ios-orange font-medium text-center">排行榜</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <i class="fas fa-user-group text-gray-400 text-3xl"></i>
+                <span class="text-base mt-1 text-gray-400 text-center">舞队</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <i class="fas fa-user text-gray-400 text-3xl"></i>
+                <span class="text-base mt-1 text-gray-400 text-center">我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 地区数据 - 三级级联选择器
+        const locationData = {
+            guangdong: {
+                name: '广东省',
+                count: 156,
+                cities: {
+                    shenzhen: {
+                        name: '深圳市',
+                        count: 68,
+                        districts: {
+                            nanshan: { name: '南山区', count: 23 },
+                            futian: { name: '福田区', count: 18 },
+                            luohu: { name: '罗湖区', count: 15 },
+                            baoan: { name: '宝安区', count: 12 }
+                        }
+                    },
+                    guangzhou: {
+                        name: '广州市',
+                        count: 69,
+                        districts: {
+                            tianhe: { name: '天河区', count: 28 },
+                            yuexiu: { name: '越秀区', count: 22 },
+                            haizhu: { name: '海珠区', count: 19 }
+                        }
+                    },
+                    dongguan: {
+                        name: '东莞市',
+                        count: 19,
+                        districts: {
+                            nancheng: { name: '南城区', count: 8 },
+                            dongcheng: { name: '东城区', count: 11 }
+                        }
+                    }
+                }
+            },
+            fujian: {
+                name: '福建省',
+                count: 118,
+                cities: {
+                    xiamen: {
+                        name: '厦门市',
+                        count: 59,
+                        districts: {
+                            siming: { name: '思明区', count: 25 },
+                            huli: { name: '湖里区', count: 18 },
+                            jimei: { name: '集美区', count: 16 }
+                        }
+                    },
+                    fuzhou: {
+                        name: '福州市',
+                        count: 35,
+                        districts: {
+                            gulou: { name: '鼓楼区', count: 20 },
+                            taijiang: { name: '台江区', count: 15 }
+                        }
+                    },
+                    quanzhou: {
+                        name: '泉州市',
+                        count: 24,
+                        districts: {
+                            licheng: { name: '鲤城区', count: 12 },
+                            fengze: { name: '丰泽区', count: 12 }
+                        }
+                    }
+                }
+            },
+            zhejiang: {
+                name: '浙江省',
+                count: 89,
+                cities: {
+                    hangzhou: {
+                        name: '杭州市',
+                        count: 45,
+                        districts: {
+                            xihu: { name: '西湖区', count: 20 },
+                            shangcheng: { name: '上城区', count: 15 },
+                            xiacheng: { name: '下城区', count: 10 }
+                        }
+                    },
+                    ningbo: {
+                        name: '宁波市',
+                        count: 33,
+                        districts: {
+                            haishu: { name: '海曙区', count: 18 },
+                            jiangbei: { name: '江北区', count: 15 }
+                        }
+                    },
+                    wenzhou: {
+                        name: '温州市',
+                        count: 11,
+                        districts: {
+                            lucheng: { name: '鹿城区', count: 6 },
+                            ouhai: { name: '瓯海区', count: 5 }
+                        }
+                    }
+                }
+            }
+        };
+
+        // DOM元素
+        const provinceSelect = document.getElementById('province-select');
+        const citySelect = document.getElementById('city-select');
+        const districtSelect = document.getElementById('district-select');
+        const locationBtn = document.getElementById('location-btn');
+        const resetAllBtn = document.getElementById('reset-all-btn');
+        const teamCountText = document.getElementById('team-count-text');
+
+        // 更新城市选项
+        function updateCities(provinceKey) {
+            citySelect.innerHTML = '<option value="">选择城市</option>';
+            districtSelect.innerHTML = '<option value="">选择区域</option>';
+            
+            if (provinceKey && locationData[provinceKey]) {
+                const cities = locationData[provinceKey].cities;
+                Object.keys(cities).forEach(cityKey => {
+                    const option = document.createElement('option');
+                    option.value = cityKey;
+                    option.textContent = cities[cityKey].name;
+                    citySelect.appendChild(option);
+                });
+                citySelect.disabled = false;
+            } else {
+                citySelect.disabled = true;
+            }
+            districtSelect.disabled = true;
+        }
+
+        // 更新区域选项
+        function updateDistricts(provinceKey, cityKey) {
+            districtSelect.innerHTML = '<option value="">选择区域</option>';
+            
+            if (provinceKey && cityKey && locationData[provinceKey] && locationData[provinceKey].cities[cityKey]) {
+                const districts = locationData[provinceKey].cities[cityKey].districts;
+                Object.keys(districts).forEach(districtKey => {
+                    const option = document.createElement('option');
+                    option.value = districtKey;
+                    option.textContent = districts[districtKey].name;
+                    districtSelect.appendChild(option);
+                });
+                districtSelect.disabled = false;
+            } else {
+                districtSelect.disabled = true;
+            }
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const provinceKey = provinceSelect.value;
+            const cityKey = citySelect.value;
+            const districtKey = districtSelect.value;
+            
+            let count = 363; // 默认全国（所有省份总和）
+            let locationText = '全国';
+            
+            if (provinceKey && locationData[provinceKey]) {
+                if (cityKey && locationData[provinceKey].cities[cityKey]) {
+                    if (districtKey && locationData[provinceKey].cities[cityKey].districts[districtKey]) {
+                        // 具体到区域
+                        count = locationData[provinceKey].cities[cityKey].districts[districtKey].count;
+                        locationText = locationData[provinceKey].cities[cityKey].districts[districtKey].name;
+                    } else {
+                        // 具体到城市
+                        count = locationData[provinceKey].cities[cityKey].count;
+                        locationText = locationData[provinceKey].cities[cityKey].name;
+                    }
+                } else {
+                    // 具体到省份
+                    count = locationData[provinceKey].count;
+                    locationText = locationData[provinceKey].name;
+                }
+            }
+            
+            teamCountText.textContent = `${locationText}共有${count}支舞队`;
+        }
+
+        // 事件监听
+        provinceSelect.addEventListener('change', (e) => {
+            updateCities(e.target.value);
+            updateStats();
+        });
+
+        citySelect.addEventListener('change', (e) => {
+            updateDistricts(provinceSelect.value, e.target.value);
+            updateStats();
+        });
+
+        districtSelect.addEventListener('change', () => {
+            updateStats();
+        });
+
+        // 定位按钮事件
+        locationBtn.addEventListener('click', () => {
+            console.log('正在定位...');
+            
+            // 模拟定位成功
+            setTimeout(() => {
+                // 设置省份
+                provinceSelect.value = 'fujian';
+                updateCities('fujian');
+                
+                // 设置城市
+                citySelect.value = 'xiamen';
+                updateDistricts('fujian', 'xiamen');
+                
+                // 设置区域
+                districtSelect.value = 'siming';
+                updateStats();
+                
+                console.log('定位成功：福建省厦门市思明区');
+                
+                // 视觉反馈
+                locationBtn.style.backgroundColor = '#4CAF50';
+                setTimeout(() => {
+                    locationBtn.style.backgroundColor = 'var(--brand-primary)';
+                }, 1000);
+            }, 1000);
+        });
+
+        // 重置按钮事件
+        resetAllBtn.addEventListener('click', () => {
+            // 重置地区选择
+            provinceSelect.value = '';
+            updateCities('');
+            updateStats();
+            
+            // 重置舞种筛选
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => btn.classList.remove('active'));
+            filterBtns[0].classList.add('active');
+            
+            // 重置搜索框
+            const searchInput = document.querySelector('.search-bar input');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            console.log('重置所有筛选条件');
+        });
+
+        // Tab切换功能
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+                
+                // 更新Tab按钮状态
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 更新Tab内容显示
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `content-${targetTab}`) {
+                        content.classList.add('active');
+                    }
+                });
+                
+                console.log('切换到Tab:', targetTab);
+            });
+        });
+
+        // 舞种筛选按钮事件
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                console.log('筛选舞种:', btn.textContent);
+            });
+        });
+
+        // 初始化
+        updateStats();
+    </script>
+</body>
+</html>

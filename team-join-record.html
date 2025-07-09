@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>入队申请记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ios-blue': '#007AFF',
+                        'ios-gray': '#8E8E93',
+                        'ios-light-gray': '#F2F2F7',
+                        'ios-orange': '#FF9500',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 添加新的 CSS 变量 */
+        :root {
+             --brand-primary: #FF9500;      /* 经典亮橙 - 主操作 */
+             --brand-secondary: #F5846A;    /* 暖橙珊瑚色 - 点缀/进度条 */
+             --action-blue: #007AFF;      /* 经典蓝 - 次操作 */
+             --action-green: #34C759;     /* 经典绿 - 辅助操作 */
+
+             --bg-white: #FFFFFF;           /* 纯白 - 卡片背景 */
+             --bg-light: #FFF9F5;           /* 暖米色 - 页面背景 */
+             --bg-gray: #F7F2EE;            /* 暖灰色 - 元素背景/次要按钮 */
+             --bg-highlight: #FFEAD9;       /* 浅橙 - 选中项/图标背景 */
+             --bg-blur: rgba(255, 249, 245, 0.9); /* 暖米色模糊背景 */
+             --tag-blue-bg: #EBF5FF;        /* 浅蓝色背景 */
+             --tag-blue-text: var(--action-blue);
+
+             --text-primary: #333333;       /* 深灰 - 主要文字 */
+             --text-secondary: #757575;     /* 中灰 - 次要文字 */
+             --text-tips: #A39995;          /* 浅棕 - 提示文字 */
+             --text-white: #FFFFFF;         /* 白色文字 */
+             --text-link: var(--brand-primary); /* 链接色 - 主色 */
+
+             --border-base: #E5DCD8;        /* 暖灰边框/分割线 */
+             --divider: var(--border-base); /* 统一分割线 */
+             --error: #F5605C;              /* 暖红色 - 错误提示/按钮 */
+             --error-dark: #DC2626;         /* 深暖红色 - Active */
+
+              /* 阴影 */
+              --shadow-color-base: rgba(51, 51, 51, 0.08);
+              --shadow-color-hover: rgba(51, 51, 51, 0.12);
+              --shadow-color-active: rgba(51, 51, 51, 0.15);
+              --shadow-color-strong: rgba(0, 0, 0, 0.1); /* 调整模态框阴影 */
+              --shadow-color-primary-btn: rgba(255, 149, 0, 0.3);
+              --shadow-color-primary-focus: rgba(255, 149, 0, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #FF9400 0%, #FFFFFF 93.27%);
+            width: 375px;
+            height: 812px;
+            overflow: hidden;
+            font-size: 16px;
+            color: var(--text-primary); /* 默认文字 */
+        }
+        .status-bar, .title-bar, .bottom-bar {
+            background-color: var(--bg-white); /* 统一白色背景 */
+            color: var(--text-primary); /* 默认文字颜色 */
+        }
+        .status-bar {
+            height: 44px;
+            padding: 0 16px;
+        }
+         .title-bar {
+             height: 48px; /* 调整为 48px */
+             border-bottom: 1px solid var(--border-base); /* 分割线 */
+         }
+         .bottom-bar {
+             height: 80px; /* 调整为 80px */
+             border-top: 1px solid var(--border-base); /* 分割线 */
+         }
+        .ios-scroll::-webkit-scrollbar { display: none; }
+        .ios-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .application-item {
+            border-bottom: 1px solid var(--border-base); /* 分割线 */
+            padding: 16px;
+            background-color: var(--bg-white); /* 列表项背景 */
+        }
+        .application-item:last-child {
+            border-bottom: none;
+        }
+        .application-item-title {
+            color: var(--text-primary); /* 列表项标题文字 */
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            min-width: 90px;
+            text-align: center;
+        }
+        .status-badge.pending {
+            background-color: var(--action-blue); /* 申请中 - 蓝色背景 */
+            color: var(--text-white); /* 白色文字 */
+        }
+        .status-badge.rejected {
+            background-color: var(--bg-gray); /* 已拒绝 - 灰色背景 */
+            color: var(--text-secondary); /* 灰色文字 */
+        }
+        .action-button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        .cancel-button {
+            background-color: var(--error); /* 取消按钮 - 红色背景 */
+            color: var(--text-white); /* 白色文字 */
+        }
+        .cancel-button:active {
+            background-color: var(--error-dark); /* Active 深红色 */
+        }
+        .back-button {
+            width: 120px;
+            height: 48px;
+            background-color: var(--brand-primary); /* 返回按钮 - 橙色背景 */
+            color: var(--text-white); /* 白色文字 */
+            border-radius: 24px;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px var(--shadow-color-primary-btn); /* 橙色阴影 */
+            transition: all 0.2s;
+        }
+        .back-button:active {
+            background-color: #E68A00; /* Active 深橙色 */
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px var(--shadow-color-primary-btn);
+        }
+
+        /* 模态弹窗样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色遮罩 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            width: 90%;
+            max-width: 340px;
+            background-color: var(--bg-white); /* 弹窗背景 */
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px var(--shadow-color-strong); /* 调整阴影 */
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary); /* 弹窗标题颜色 */
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .modal-close { /* 如果需要关闭按钮 */
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background-color: var(--bg-gray); /* 关闭按钮背景 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary); /* 关闭按钮图标颜色 */
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .modal-close:active {
+            background-color: #E5DCD8; /* 更深的灰色 */
+        }
+        .modal-text {
+            color: var(--text-secondary); /* 弹窗正文颜色 */
+        }
+        /* 确认弹窗 spécifique */
+        .confirm-modal .modal-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .confirm-modal .modal-button {
+            margin-top: 0;
+            width: 100%;
+            height: 48px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        /* 确认弹窗 - 取消按钮 */
+        .confirm-modal .cancel-modal-button {
+            background-color: var(--bg-gray); /* 灰色背景 */
+            color: var(--text-primary); /* 主要文字颜色 */
+        }
+        .confirm-modal .cancel-modal-button:active {
+            background-color: #E5DCD8; /* 更深的灰色 */
+        }
+        /* 确认弹窗 - 确认按钮 */
+        .confirm-modal .confirm-modal-button {
+            background-color: var(--brand-primary); /* 橙色背景 */
+            color: var(--text-white); /* 白色文字 */
+        }
+        .confirm-modal .confirm-modal-button:active {
+            background-color: #E68A00; /* 深橙色 */
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar flex justify-between items-center">
+        <div class="text-base font-semibold">12:00</div>
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <!-- 标题栏 -->
+    <div class="title-bar flex items-center px-4">
+        <h1 class="text-xl font-semibold">入队申请记录</h1>
+    </div>
+
+    <!-- 申请列表 -->
+    <div class="flex-1 overflow-y-auto ios-scroll" style="height: calc(100% - 44px - 48px - 80px);">
+        <!-- 申请项 -->
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="application-item-title font-medium text-lg">快乐广场舞队，2023-05-15</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge pending">申请中</div>
+                <button class="action-button cancel-button" data-index="0">取消申请</button>
+            </div>
+        </div>
+
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="application-item-title font-medium text-lg">阳光健身队，2023-04-20</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge rejected">已拒绝</div>
+                <!-- 已拒绝状态下通常没有操作按钮，或者可能是"查看详情" -->
+            </div>
+        </div>
+
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="application-item-title font-medium text-lg">晨曦舞蹈队，2023-04-10</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge rejected">已拒绝</div>
+            </div>
+        </div>
+
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="application-item-title font-medium text-lg">欢乐舞步队，2023-03-25</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge rejected">已拒绝</div>
+            </div>
+        </div>
+        <!-- 可以继续添加更多申请项 -->
+
+    </div>
+
+    <!-- 底部返回按钮 -->
+    <div class="bottom-bar flex justify-center items-center">
+        <a href="profile.html" class="back-button">
+            返回
+        </a>
+    </div>
+
+
+
+    <!-- 取消申请确认弹窗 -->
+    <div id="confirmModal" class="modal confirm-modal">
+        <div class="modal-content">
+            <div class="modal-title">确认取消</div>
+            <p class="text-center text-lg modal-text">确定要取消该入队申请吗？</p> <!-- 应用 modal-text -->
+            <div class="modal-buttons">
+                <button id="cancelConfirmButton" class="modal-button cancel-modal-button flex-1">再想想</button> <!-- 修改文字 -->
+                <button id="confirmCancelButton" class="modal-button confirm-modal-button flex-1">确定取消</button> <!-- 应用 confirm-modal-button -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取模态弹窗元素
+        const confirmModal = document.getElementById('confirmModal');
+        const cancelConfirmButton = document.getElementById('cancelConfirmButton');
+        const confirmCancelButton = document.getElementById('confirmCancelButton');
+
+        // 当前操作的申请项索引
+        let currentIndex = -1;
+
+        // 为所有取消申请按钮添加点击事件
+        const cancelButtons = document.querySelectorAll('.cancel-button');
+        cancelButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // 获取与按钮关联的申请项索引
+                const item = this.closest('.application-item');
+                // A more robust way to get index might be needed depending on how items are rendered dynamically
+                currentIndex = Array.from(item.parentNode.children).indexOf(item);
+                showConfirmModal(currentIndex);
+            });
+        });
+
+        // 显示确认取消弹窗
+        function showConfirmModal(index) {
+            currentIndex = index; // 存储当前索引，以便确认时使用
+            confirmModal.classList.add('active');
+        }
+
+        // 取消确认弹窗 - "再想想" 按钮
+        cancelConfirmButton.addEventListener('click', () => {
+            confirmModal.classList.remove('active');
+        });
+
+        // 确认取消申请 - "确定取消" 按钮
+        confirmCancelButton.addEventListener('click', () => {
+            // 在实际应用中，这里应该发送请求到服务器取消申请
+            // 这里仅做界面演示：移除对应的列表项
+            if (currentIndex >= 0) {
+                 // 确保获取最新的列表项集合进行操作
+                const applicationItems = document.querySelectorAll('.application-item');
+                 if(applicationItems[currentIndex]) {
+                    applicationItems[currentIndex].remove();
+                 }
+            }
+            currentIndex = -1; // 重置索引
+            confirmModal.classList.remove('active');
+        });
+
+        // 点击确认弹窗外部关闭 (可选)
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                confirmModal.classList.remove('active');
+            }
+        });
+
+        // 注意：原始代码中的 applicationDetails 数据和 detailModal 相关逻辑已被移除，
+        // 因为此页面仅包含取消申请功能。如果需要查看详情，需要重新加入相关 HTML 和 JS。
+    </script>
+</body>
+</html> 

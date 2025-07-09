@@ -1,0 +1,428 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>静舞团小程序UI设计展示系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ios-blue': '#007AFF',
+                        'ios-gray': '#8E8E93',
+                        'ios-light-gray': '#F2F2F7',
+                        'ios-orange': '#FF9500',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F5F5F7;
+        }
+        .iphone-frame {
+            width: 385px; /* 增加宽度从375px到400px */
+            height: 830px;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            border: 14px solid #1C1C1E;
+            position: relative;
+        }
+        .iphone-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 30px;
+            background-color: #1C1C1E;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            z-index: 10;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(0.97);  /* 添加缩放以确保内容完全显示 */
+            transform-origin: top left; /* 设置变换原点 */
+        }
+        .module-section {
+            margin-bottom: 80px;
+            width: 100%;
+            padding: 40px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .submodule-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            border-left: 4px solid #FF9500;
+        }
+        .feature-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .nav-tab {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+        }
+        .nav-tab.active {
+            border-bottom-color: #FF9500;
+            color: #FF9500;
+        }
+        .flow-diagram {
+            width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+    <div class="max-w-full mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">静舞团小程序UI设计展示系统</h1>
+            <p class="text-gray-600">基于iOS设计规范（iPhone 15 Pro风格）的高保真UI设计</p>
+        </header>
+
+        <!-- 功能概览 -->
+        <div class="module-section mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">功能概览</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="feature-card">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-music text-orange-500"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">播放板块</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">音乐播放控制、歌单管理、歌曲列表等功能</p>
+                </div>
+                <div class="feature-card">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-trophy text-blue-500"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">排行榜板块</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">舞队浏览与搜索、地区筛选、活动中心预留功能</p>
+                </div>
+                <div class="feature-card">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-user-group text-green-500"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">团队板块</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">我的舞队、设备管理、加入/创建舞队等功能</p>
+                </div>
+                <div class="feature-card">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-purple-500"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">个人中心</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">用户信息、舞队申请记录、入队申请记录等功能</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 播放板块 -->
+        <div class="module-section" id="play-module">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-music text-orange-500 mr-2"></i>播放板块
+            </h2>
+            
+            <!-- 主播放界面 -->
+            <div class="submodule-section">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">主播放界面</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-gray-600 mb-4">主播放界面提供音乐播放控制功能，包括播放/暂停、上一首/下一首、音量调节等。用户可以查看当前播放歌曲的信息，如封面、歌名、歌手等。</p>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-2">
+                            <li>播放控制（播放/暂停/上一首/下一首）</li>
+                            <li>音量调节和播放进度控制</li>
+                            <li>歌曲信息展示（封面、歌名、歌手）</li>
+                            <li>播放模式切换（单曲循环/随机播放等）</li>
+                            <li>蓝牙设备连接功能</li>
+                        </ul>
+                    </div>
+                    <div class="flex justify-center">
+                        <div class="iphone-frame">
+                            <iframe src="display.html" class="iframe-container" scrolling="no"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 社区板块 -->
+        <div class="module-section" id="community-module">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-trophy text-blue-500 mr-2"></i>排行榜板块
+            </h2>
+            
+            <!-- 舞队列表 -->
+            <div class="submodule-section">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">排行榜——舞队列表与搜索</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-gray-600 mb-4">排行榜版块（原社区版块）主要帮助用户发现和加入合适的舞队。由于原SaaS架构调整为非SaaS架构，舞队数据失去社区维度，现通过地理位置和舞种进行组织。</p>
+                        <h4 class="font-semibold text-gray-700 mb-2">核心功能：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-2">
+                            <li><strong>Tab切换：</strong>舞队列表 + 活动中心（预留）</li>
+                            <li><strong>地区筛选：</strong>省市区三级联动选择器 + 一键定位</li>
+                            <li><strong>舞种筛选：</strong>多选舞种类型（广场舞、民族舞等）</li>
+                            <li><strong>搜索功能：</strong>支持舞队名称和领队姓名模糊搜索</li>
+                            <li><strong>舞队列表：</strong>头像、名称、领队、成员数、地点、舞种标签</li>
+                            <li><strong>一键加入：</strong>直接申请加入舞队</li>
+                        </ul>
+                        <h4 class="font-semibold text-gray-700 mb-2 mt-4">技术要点：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>三级级联选择器：省份选择后自动更新城市，城市选择后更新区域</li>
+                            <li>统计信息智能更新：根据选择层级显示对应统计数据</li>
+                            <li>搜索优化：支持拼音首字母，实时搜索提示</li>
+                            <li>活动中心Tab：占位"敬请期待"，为积分体系预留</li>
+                        </ul>
+                    </div>
+                    <div class="flex justify-center">
+                        <div class="iphone-frame">
+                            <iframe src="community.html" class="iframe-container" scrolling="no"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 舞队详情 -->
+            <div class="submodule-section">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">舞队详情</h3>
+                <div class="nav-tabs">
+                    <div class="nav-tab active">未加入视图</div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-gray-600 mb-4">舞队详情页面为未加入用户提供舞队基本信息展示和一键申请加入功能。采用适老化设计，操作简单直观，无需填写复杂表单。</p>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-2">
+                            <li>舞队基本信息（头像、名称、舞种、成员数等）</li>
+                            <li>简洁的舞队简介展示</li>
+                            <li>一键申请加入：点击"加入舞队"按钮直接提交申请</li>
+                            <li>实时状态反馈：按钮状态自动变为"已申请"</li>
+                            <li>成功提示：显示"申请已提交，等待领队审批"</li>
+                            <!-- <li>标准小程序UI设计（88px顶部覆盖层）</li> -->
+                        </ul>
+                    </div>
+                    <div class="flex justify-center">
+                        <div class="iphone-frame">
+                            <iframe src="team-detail-guest.html" class="iframe-container" scrolling="no"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 团队板块 -->
+        <div class="module-section" id="team-module">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-user-group text-green-500 mr-2"></i>团队板块
+            </h2>
+            
+            <!-- 我的舞队 -->
+            <div class="submodule-section">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">我的舞队（角色权限设计）</h3>
+                <div class="nav-tabs">
+                    <div class="nav-tab active" onclick="switchTeamViewTab(0)">未有舞队视图</div>
+                    <div class="nav-tab" onclick="switchTeamViewTab(1)">已加入视图</div>
+                    <div class="nav-tab" onclick="switchTeamViewTab(2)">领队视图</div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-gray-600 mb-4">舞队详情页采用重构设计，删除独立管理页面，将管理功能整合到详情页中。根据用户角色（领队/普通成员）展示不同功能权限。</p>
+                        <h4 class="font-semibold text-gray-700 mb-2">架构重构要点：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-2">
+                            <li><strong>小程序UI适配：</strong>88px顶部覆盖层（状态栏44px + 导航栏44px）</li>
+                            <li><strong>角色权限区分：</strong>领队与普通成员看到不同的功能菜单</li>
+                            <li><strong>功能整合：</strong>移除team-management.html，功能整合到详情页</li>
+                        </ul>
+                        <h4 class="font-semibold text-gray-700 mb-2 mt-4">领队功能权限：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>快速操作区：舞队二维码、扫码报修、查看成员、待审批</li>
+                            <li>更多菜单：成员管理、设备管理、修改舞队信息、转让领队、解散舞队</li>
+                        </ul>
+                        <h4 class="font-semibold text-gray-700 mb-2 mt-4">普通成员功能：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>快速操作区：舞队二维码、扫码报修</li>
+                            <li>更多菜单：退出舞队</li>
+                        </ul>
+                    </div>
+                    <div class="flex justify-center">
+                        <div class="iphone-frame">
+                            <iframe id="team-view-frame" src="team-page-without-team.html" class="iframe-container" scrolling="no"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设备管理 -->
+            <div class="submodule-section">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">设备管理（核心业务逻辑）</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-gray-600 mb-4">设备管理功能经过重新设计，从"编辑时段"改为"查看使用时段"的只读模式，基于后台预设的开关机模版进行时间段申请。</p>
+                        <h4 class="font-semibold text-gray-700 mb-2">核心逻辑变更：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-2">
+                            <li><strong>开关机模版系统：</strong>后台管理预设设备开放时间，舞队从模版中选择</li>
+                            <li><strong>占用校验机制：</strong>其他舞队已勾选的时间段显示灰色，不可选择</li>
+                            <li><strong>只读时段查看：</strong>"编辑时段" → "查看使用时段"，仅展示已申请时间</li>
+                            <li><strong>申请审核流程：</strong>待激活 → 已激活的管理员审核机制</li>
+                        </ul>
+                        <h4 class="font-semibold text-gray-700 mb-2 mt-4">数据结构分离：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li><strong>deviceTemplates：</strong>设备开放时间模版（后台设置）</li>
+                            <li><strong>teamSchedules：</strong>舞队已申请的时间段记录</li>
+                            <li><strong>deviceApplications：</strong>设备申请审核状态记录</li>
+                        </ul>
+                        <h4 class="font-semibold text-gray-700 mb-2 mt-4">核心功能流程：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>扫码绑定：扫描设备二维码 → 选择预设时间段 → 提交申请</li>
+                            <li>占用展示：已占用时间显示灰色 + 占用方信息</li>
+                            <li>状态管理：设备卡片显示"待激活"/"已激活"状态</li>
+                            <li>操作权限：查看使用时段 + 解绑/取消申请</li>
+                        </ul>
+                    </div>
+                    <div class="flex justify-center">
+                        <div class="iphone-frame">
+                            <iframe src="device-management.html" class="iframe-container" scrolling="no"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 创建舞队 -->
+            <div class="submodule-section">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">创建舞队功能</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-gray-600 mb-4">用户可以创建新舞队，成为舞队领队。创建舞队功能专注于收集完整信息以支持排行榜筛选功能。加入舞队功能已整合到舞队详情页中。</p>
+                        <h4 class="font-semibold text-gray-700 mb-2">加入舞队流程：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>在排行榜页面浏览舞队，点击进入舞队详情页</li>
+                            <li>在舞队详情页点击"加入舞队"按钮</li>
+                            <li>直接提交申请，按钮变为"已申请"状态</li>
+                            <li>等待领队审批，无需填写额外表单</li>
+                        </ul>
+                        <h4 class="font-semibold text-gray-700 mb-2 mt-4">创建舞队（PRD核心要求）：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li><strong>基本信息：</strong>舞队名称（必填，全局唯一）、头像（选填）、简介（必填）、舞种选择（最多3个）</li>
+                            <li><strong>活动地点（必填）：</strong>三级联动地区选择  或 一键定位获取到区级别地址</li>
+                            <li><strong>数据校验：</strong>舞队名称实时校验、必填项验证</li>
+                            <li><strong>用户体验：</strong>适老化设计、操作简单顺畅</li>
+                        </ul>
+                        <h4 class="font-semibold text-gray-700 mb-2 mt-4">技术要点：</h4>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>舞队名称唯一性校验、位置解析接口</li>
+                            <li>创建成功后自动成为领队，跳转舞队管理页</li>
+                            <li>支持图片上传（头像）和多选舞种（最多3个）</li>
+                            <li>加入舞队功能已整合到team-detail-guest.html</li>
+                        </ul>
+                    </div>
+                    <div class="flex justify-center">
+                        <div class="iphone-frame">
+                            <iframe src="create-team-form.html" class="iframe-container" scrolling="no"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 个人中心板块 -->
+        <div class="module-section" id="profile-module">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-user text-purple-500 mr-2"></i>个人中心板块
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-gray-600 mb-4">个人中心板块提供用户个人信息管理和各类申请记录查看功能，采用标准小程序UI设计，符合中老年用户使用习惯。</p>
+                    <h4 class="font-semibold text-gray-700 mb-2">核心功能：</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-2">
+                        <li><strong>用户信息：</strong>头像、昵称、个人设置管理</li>
+                        <li><strong>舞队申请记录：</strong>创建舞队的审批状态（审批中、已通过、已拒绝）</li>
+                        <li><strong>入队申请记录：</strong>申请加入舞队的状态，支持取消申请操作</li>
+                        <li><strong>标准UI设计：</strong>88px小程序顶部覆盖层，底部导航栏规范</li>
+                    </ul>
+                    <h4 class="font-semibold text-gray-700 mb-2 mt-4">技术要点：</h4>
+                    <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                        <li>页面内容从88px下方开始显示（小程序UI规范）</li>
+                        <li>菜单项点击动画效果，统一样式规范</li>
+                        <li>完整的CSS重置样式，确保100%契合小程序框架</li>
+                    </ul>
+                </div>
+                <div class="flex justify-center">
+                    <div class="iphone-frame">
+                        <iframe src="profile.html" class="iframe-container" scrolling="no"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <p>© 2023 静境智能声学科技有限公司 - 静舞团小程序UI设计</p>
+        </footer>
+    </div>
+    <script>
+        // 团队视图标签页切换
+        function switchTeamViewTab(index) {
+            // 更新标签页样式
+            const tabs = document.querySelectorAll('#team-module .submodule-section:nth-of-type(1) .nav-tab');
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                    } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // 更新iframe源
+            const frame = document.getElementById('team-view-frame');
+            switch(index) {
+                case 0:
+                    frame.src = 'team-page-without-team.html';
+                    break;
+                case 1:
+                    frame.src = 'team-detail-member.html';
+                    break;
+                case 2:
+                    frame.src = 'team-detail-leader.html';
+                    break;
+            }
+        }
+        
+
+    </script>
+</body>
+</html>

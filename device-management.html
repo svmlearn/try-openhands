@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ios-blue': '#007AFF',
+                        'ios-gray': '#8E8E93',
+                        'ios-light-gray': '#F2F2F7',
+                        'ios-orange': '#FF9500',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 全局重置样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #FF9400 0%, #FFFFFF 93.27%);
+            width: 375px;
+            height: 812px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        /* 小程序UI覆盖层 */
+        .miniprogram-ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 88px;
+            background-color: #FFFFFF;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #1F2937;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .nav-bar {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-back-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .nav-title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-left: -32px;
+        }
+
+        /* 页面内容 */
+        .page-content {
+            padding-top: 88px;
+            height: 100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 100px;
+        }
+
+        .page-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 设备卡片样式 */
+        .device-card {
+            background-color: white;
+            border-radius: 16px;
+            margin: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #FF9500;
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .device-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .device-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .device-info {
+            margin-bottom: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .info-label {
+            color: #6B7280;
+        }
+
+        .info-value {
+            color: #1F2937;
+            font-weight: 500;
+        }
+
+        .device-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #FF9500;
+            color: white;
+        }
+
+        .btn-primary:active {
+            background-color: #E8840A;
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background-color: #F3F4F6;
+            color: #4B5563;
+            border: 1px solid #D1D5DB;
+        }
+
+        .btn-secondary:active {
+            background-color: #E5E7EB;
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            background-color: #FEF2F2;
+            color: #DC2626;
+            border: 1px solid #DC2626;
+        }
+
+        .btn-danger:active {
+            background-color: #FEE2E2;
+            transform: scale(0.98);
+        }
+
+        /* 绑定设备按钮 */
+        .bind-device-btn {
+            position: fixed;
+            bottom: 120px;
+            left: 16px;
+            right: 16px;
+            background-color: #FF9500;
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(255, 148, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .bind-device-btn:active {
+            background-color: #E8840A;
+            transform: scale(0.98);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            text-align: center;
+            color: #6B7280;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 16px;
+            color: #D1D5DB;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 16px;
+            margin: 20px;
+            max-width: 335px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px 20px 0 20px;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 12px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .scan-area {
+            background-color: #F9FAFB;
+            border: 2px dashed #D1D5DB;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .scan-icon {
+            font-size: 48px;
+            color: #6B7280;
+            margin-bottom: 12px;
+        }
+
+        /* 时间段设置样式 */
+        .time-schedule {
+            background-color: white;
+            border-radius: 16px;
+            margin: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .schedule-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 20px;
+        }
+
+        .day-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+
+        .day-row:last-child {
+            border-bottom: none;
+        }
+
+        .day-row.occupied {
+            background-color: #F9FAFB;
+            color: #9CA3AF;
+            opacity: 0.6;
+        }
+
+        .day-row.occupied .day-name {
+            color: #9CA3AF;
+        }
+
+        .day-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            accent-color: #FF9500;
+        }
+
+        .day-checkbox:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .day-name {
+            flex: 1;
+            font-size: 16px;
+            color: #1F2937;
+        }
+
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-input {
+            padding: 8px 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 80px;
+            text-align: center;
+        }
+
+        .time-input:disabled {
+            background-color: #F9FAFB;
+            color: #9CA3AF;
+        }
+
+        .submit-btn {
+            margin: 20px 16px;
+            padding: 16px;
+            background-color: #FF9500;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: calc(100% - 32px);
+        }
+
+        .submit-btn:active {
+            background-color: #E8840A;
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            background-color: #D1D5DB;
+            color: #9CA3AF;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <!-- 小程序UI覆盖层 -->
+    <div class="miniprogram-ui-overlay">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>10:00</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>88%</span>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+        
+        <!-- 导航栏 -->
+        <div class="nav-bar">
+            <div class="nav-back-btn" onclick="history.back()">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="nav-title">设备管理</div>
+        </div>
+    </div>
+
+    <!-- 页面内容 -->
+    <div class="page-content">
+        <!-- 设备列表 -->
+        <div id="deviceList">
+            <!-- 设备卡片1 -->
+            <div class="device-card">
+                <div class="device-header">
+                    <div class="device-name">音响设备 - A001</div>
+                    <div class="device-status status-active">已激活</div>
+                </div>
+                <div class="device-info">
+                    <div class="info-row">
+                        <span class="info-label">设备位置</span>
+                        <span class="info-value">文化广场东区</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">绑定时间</span>
+                        <span class="info-value">2024-01-15</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">使用时段</span>
+                        <span class="info-value">每周二、四、六 19:00-21:00</span>
+                    </div>
+                </div>
+                <div class="device-actions">
+                    <button class="action-btn btn-secondary" onclick="viewSchedule('A001')">查看使用时段</button>
+                    <button class="action-btn btn-danger" onclick="unbindDevice('A001')">解绑设备</button>
+                </div>
+            </div>
+
+            <!-- 设备卡片2 -->
+            <div class="device-card">
+                <div class="device-header">
+                    <div class="device-name">音响设备 - A002</div>
+                    <div class="device-status status-pending">待激活</div>
+                </div>
+                <div class="device-info">
+                    <div class="info-row">
+                        <span class="info-label">设备位置</span>
+                        <span class="info-value">文化广场西区</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">申请时间</span>
+                        <span class="info-value">2024-01-20</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">审核状态</span>
+                        <span class="info-value">等待管理员审核</span>
+                    </div>
+                </div>
+                <div class="device-actions">
+                    <button class="action-btn btn-secondary" onclick="viewSchedule('A002')">查看使用时段</button>
+                    <button class="action-btn btn-danger" onclick="cancelApplication('A002')">取消申请</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 空状态（当没有设备时显示） -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-music"></i>
+            <h3>暂无绑定设备</h3>
+            <p>点击下方按钮绑定新设备</p>
+        </div>
+    </div>
+
+    <!-- 绑定设备按钮 -->
+    <button class="bind-device-btn" onclick="showScanModal()">
+        <i class="fas fa-plus" style="margin-right: 8px;"></i>绑定新设备
+    </button>
+
+    <!-- 扫码绑定弹窗 -->
+    <div id="scanModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">扫描设备二维码</div>
+            </div>
+            <div class="modal-body">
+                <div class="scan-area">
+                    <div class="scan-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <p style="color: #6B7280; margin-bottom: 16px;">请将设备二维码对准扫描框</p>
+                    <button class="action-btn btn-primary" onclick="simulateScan()">
+                        <i class="fas fa-camera" style="margin-right: 8px;"></i>开始扫描
+                    </button>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="action-btn btn-secondary" onclick="hideScanModal()" style="flex: 1;">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看使用时段弹窗 -->
+    <div id="viewScheduleModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">查看使用时段</div>
+                <p style="color: #6B7280; font-size: 14px;">舞队申请的时间段</p>
+            </div>
+            <div class="modal-body">
+                <div id="viewScheduleContent" style="padding: 20px; background-color: #F9FAFB; border-radius: 12px;">
+                    <!-- 这里显示已申请的时间段 -->
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button class="action-btn btn-secondary" onclick="hideViewScheduleModal()" style="flex: 1;">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 申请设备时间段弹窗 -->
+    <div id="scheduleModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">选择使用时间段</div>
+                <p style="color: #6B7280; font-size: 14px;">从设备开放时间中选择（灰色表示已被占用）</p>
+            </div>
+            <div class="modal-body">
+                <div class="time-schedule" style="margin: 0; box-shadow: none;">
+                    <div id="scheduleList">
+                        <!-- 动态生成时间段模版 -->
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button class="action-btn btn-secondary" onclick="hideScheduleModal()" style="flex: 1;">取消</button>
+                    <button class="action-btn btn-primary" onclick="saveSchedule()" style="flex: 1;">提交申请</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDeviceId = null;
+
+        // 设备开关机模版时间（后台设置）
+        const deviceTemplates = {
+            'A003': { // 新申请的设备
+                name: '音响设备 - A003',
+                location: '文化广场中区',
+                schedule: [
+                    { id: 'mon_morning', day: '周一', time: '07:00-09:00', occupied: false },
+                    { id: 'mon_late', day: '周一', time: '09:30-11:00', occupied: true, occupiedBy: '阳光舞队' },
+                    { id: 'tue_evening', day: '周二', time: '19:00-21:00', occupied: false },
+                    { id: 'wed_morning', day: '周三', time: '07:00-09:00', occupied: false },
+                    { id: 'thu_evening', day: '周四', time: '19:00-21:00', occupied: true, occupiedBy: '花样年华舞队' },
+                    { id: 'fri_morning', day: '周五', time: '07:00-09:00', occupied: false },
+                    { id: 'sat_evening', day: '周六', time: '19:00-21:00', occupied: false },
+                    { id: 'sun_morning', day: '周日', time: '07:00-09:00', occupied: false }
+                ]
+            }
+        };
+
+        // 舞队已申请的时间段数据
+        const teamSchedules = {
+            'A001': [
+                { day: '周二', time: '19:00-21:00' },
+                { day: '周四', time: '19:00-21:00' },
+                { day: '周六', time: '19:00-21:00' }
+            ],
+            'A002': [
+                { day: '周一', time: '07:00-09:00' },
+                { day: '周三', time: '19:00-21:00' }
+            ]
+        };
+
+        // 显示扫码弹窗
+        function showScanModal() {
+            document.getElementById('scanModal').style.display = 'flex';
+        }
+
+        // 隐藏扫码弹窗
+        function hideScanModal() {
+            document.getElementById('scanModal').style.display = 'none';
+        }
+
+        // 模拟扫码
+        function simulateScan() {
+            console.log('开始扫描设备二维码...');
+            
+            // 模拟扫码成功
+            setTimeout(() => {
+                hideScanModal();
+                currentDeviceId = 'A003';
+                showScheduleModal();
+                console.log('扫码成功，设备ID: A003');
+            }, 2000);
+        }
+
+        // 显示申请时间段弹窗
+        function showScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
+            const scheduleList = document.getElementById('scheduleList');
+            
+            // 清空现有内容
+            scheduleList.innerHTML = '';
+            
+            // 获取设备模版
+            const template = deviceTemplates[currentDeviceId];
+            if (!template) {
+                alert('设备信息获取失败');
+                return;
+            }
+            
+            // 生成时间段选项
+            template.schedule.forEach(slot => {
+                const dayRow = document.createElement('div');
+                dayRow.className = `day-row ${slot.occupied ? 'occupied' : ''}`;
+                
+                const checkboxId = `slot_${slot.id}`;
+                const occupiedText = slot.occupied ? ` (已被${slot.occupiedBy}占用)` : '';
+                
+                dayRow.innerHTML = `
+                    <input type="checkbox" class="day-checkbox" id="${checkboxId}" 
+                           ${slot.occupied ? 'disabled' : ''} 
+                           onchange="toggleSlot('${checkboxId}')">
+                    <label for="${checkboxId}" class="day-name">${slot.day}</label>
+                    <div class="time-display" style="color: ${slot.occupied ? '#9CA3AF' : '#1F2937'}; font-weight: 500;">
+                        ${slot.time}${occupiedText}
+                    </div>
+                `;
+                
+                scheduleList.appendChild(dayRow);
+            });
+            
+            modal.style.display = 'flex';
+        }
+
+        // 隐藏申请时间段弹窗
+        function hideScheduleModal() {
+            document.getElementById('scheduleModal').style.display = 'none';
+            currentDeviceId = null;
+        }
+
+        // 显示查看时间段弹窗
+        function viewSchedule(deviceId) {
+            const modal = document.getElementById('viewScheduleModal');
+            const content = document.getElementById('viewScheduleContent');
+            
+            const schedule = teamSchedules[deviceId];
+            if (!schedule || schedule.length === 0) {
+                content.innerHTML = '<p style="color: #6B7280; text-align: center;">暂无申请的时间段</p>';
+            } else {
+                const scheduleHTML = schedule.map(slot => 
+                    `<div style="margin-bottom: 12px; padding: 12px; background-color: white; border-radius: 8px; border-left: 4px solid #FF9500;">
+                        <div style="font-weight: 600; color: #1F2937;">${slot.day}</div>
+                        <div style="color: #6B7280; font-size: 14px;">${slot.time}</div>
+                    </div>`
+                ).join('');
+                content.innerHTML = scheduleHTML;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // 隐藏查看时间段弹窗
+        function hideViewScheduleModal() {
+            document.getElementById('viewScheduleModal').style.display = 'none';
+        }
+
+        // 切换时间段选择
+        function toggleSlot(slotId) {
+            const checkbox = document.getElementById(slotId);
+            console.log(`时间段 ${slotId} 选择状态: ${checkbox.checked}`);
+        }
+
+        // 保存时间段申请
+        function saveSchedule() {
+            const template = deviceTemplates[currentDeviceId];
+            const selectedSlots = [];
+            
+            template.schedule.forEach(slot => {
+                const checkboxId = `slot_${slot.id}`;
+                const checkbox = document.getElementById(checkboxId);
+                if (checkbox && checkbox.checked) {
+                    selectedSlots.push({
+                        day: slot.day,
+                        time: slot.time
+                    });
+                }
+            });
+            
+            if (selectedSlots.length === 0) {
+                alert('请至少选择一个时间段');
+                return;
+            }
+            
+            console.log('申请的时间段:', selectedSlots);
+            
+            // 添加新设备到列表
+            addNewDevice(selectedSlots);
+            hideScheduleModal();
+        }
+
+        // 添加新设备
+        function addNewDevice(schedule) {
+            const scheduleText = schedule.map(slot => `${slot.day} ${slot.time}`).join('、');
+            
+            const deviceList = document.getElementById('deviceList');
+            const newDeviceCard = document.createElement('div');
+            newDeviceCard.className = 'device-card';
+            newDeviceCard.innerHTML = `
+                <div class="device-header">
+                    <div class="device-name">音响设备 - A003</div>
+                    <div class="device-status status-pending">待激活</div>
+                </div>
+                <div class="device-info">
+                    <div class="info-row">
+                        <span class="info-label">设备位置</span>
+                        <span class="info-value">文化广场中区</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">申请时间</span>
+                        <span class="info-value">${new Date().toISOString().split('T')[0]}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">使用时段</span>
+                        <span class="info-value">${scheduleText}</span>
+                    </div>
+                </div>
+                <div class="device-actions">
+                    <button class="action-btn btn-secondary" onclick="viewSchedule('A003')">查看使用时段</button>
+                    <button class="action-btn btn-danger" onclick="cancelApplication('A003')">取消申请</button>
+                </div>
+            `;
+            
+            // 保存新设备的时间段数据
+            teamSchedules['A003'] = schedule;
+            
+            deviceList.appendChild(newDeviceCard);
+            alert('设备绑定申请已提交，等待管理员审核');
+        }
+
+        // 解绑设备
+        function unbindDevice(deviceId) {
+            if (confirm('确定要解绑此设备吗？')) {
+                console.log('解绑设备:', deviceId);
+                alert('设备已解绑');
+                // 实际应用中这里会刷新页面或移除设备卡片
+            }
+        }
+
+        // 取消申请
+        function cancelApplication(deviceId) {
+            if (confirm('确定要取消设备申请吗？')) {
+                console.log('取消申请:', deviceId);
+                alert('申请已取消');
+                // 实际应用中这里会刷新页面或移除设备卡片
+            }
+        }
+
+        // 点击弹窗外部关闭
+        document.addEventListener('click', function(event) {
+            const scanModal = document.getElementById('scanModal');
+            const scheduleModal = document.getElementById('scheduleModal');
+            const viewScheduleModal = document.getElementById('viewScheduleModal');
+            
+            if (event.target === scanModal) {
+                hideScanModal();
+            }
+            if (event.target === scheduleModal) {
+                hideScheduleModal();
+            }
+            if (event.target === viewScheduleModal) {
+                hideViewScheduleModal();
+            }
+        });
+
+        // 初始化：如果没有设备则显示空状态
+        function checkDeviceList() {
+            const deviceList = document.getElementById('deviceList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (deviceList.children.length === 0) {
+                deviceList.style.display = 'none';
+                emptyState.style.display = 'flex';
+            }
+        }
+
+        // 页面加载完成后检查设备列表
+        // checkDeviceList(); // 暂时注释掉，因为我们有示例数据
+    </script>
+</body>
+</html> 

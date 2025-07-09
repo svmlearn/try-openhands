@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舞队申请记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ios-blue': '#007AFF',
+                        'ios-gray': '#8E8E93',
+                        'ios-light-gray': '#F2F2F7',
+                        'ios-orange': '#FF9500',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #FF9400 0%, #FFFFFF 93.27%);
+            width: 375px;
+            height: 812px;
+            overflow: hidden;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+        .status-bar {
+            height: 44px;
+            background-color: white;
+            padding: 0 16px;
+        }
+        .ios-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .ios-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .application-item {
+            border-bottom: 1px solid #E5E7EB;
+            padding: 16px;
+            background-color: white;
+        }
+        .application-item:last-child {
+            border-bottom: none;
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            min-width: 90px;
+            text-align: center;
+        }
+        .status-badge.pending {
+            background-color: #4F46E5;
+            color: white;
+        }
+        .status-badge.rejected {
+            background-color: #9CA3AF;
+            color: white;
+        }
+        .detail-button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background-color: white;
+            border: 1px solid #E5E7EB;
+            font-size: 16px;
+            color: #4B5563;
+        }
+        .detail-button:active {
+            background-color: #F9FAFB;
+        }
+        .back-button {
+            width: 120px;
+            height: 48px;
+            background-color: #4F46E5;
+            color: white;
+            border-radius: 24px;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+        }
+        .back-button:active {
+            background-color: #4338CA;
+            transform: scale(0.98);
+        }
+        
+        /* 模态弹窗样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            width: 90%;
+            max-width: 340px;
+            background-color: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background-color: #F3F4F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4B5563;
+            font-size: 16px;
+        }
+        .modal-close:active {
+            background-color: #E5E7EB;
+        }
+        .detail-item {
+            margin-bottom: 16px;
+        }
+        .detail-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #6B7280;
+            margin-bottom: 4px;
+        }
+        .detail-value {
+            font-size: 18px;
+            color: #1F2937;
+            line-height: 1.5;
+        }
+        .modal-button {
+            width: 100%;
+            height: 48px;
+            background-color: #4F46E5;
+            color: white;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 500;
+            margin-top: 16px;
+        }
+        .modal-button:active {
+            background-color: #4338CA;
+        }
+    </style> 
+</head>
+<body>
+    <!-- 详情模态弹窗 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">申请详情</div>
+            <button id="closeModal" class="modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="detail-item">
+                <div class="detail-label">舞队名称</div>
+                <div id="teamName" class="detail-value">太阳花</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">舞种</div>
+                <div id="danceType" class="detail-value">拉丁舞</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">舞队介绍</div>
+                <div id="teamIntro" class="detail-value">太阳花舞蹈队成立于2020年，专注于拉丁舞的教学和表演。我们有专业的教练团队，欢迎各年龄段的舞蹈爱好者加入。</div>
+            </div>
+            
+            <div id="rejectReasonContainer" class="detail-item">
+                <div class="detail-label">驳回理由</div>
+                <div id="rejectReason" class="detail-value">目前舞队成员已满，暂时无法接受新成员加入。</div>
+            </div>
+            
+            <button id="confirmButton" class="modal-button">确定</button>
+        </div>
+    </div>
+
+
+
+    <!-- 状态栏 -->
+    <div class="status-bar flex justify-between items-center">
+        <div class="text-base font-semibold">12:00</div>
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <!-- 标题栏 -->
+    <div class="h-12 bg-white flex items-center px-4 border-b border-gray-200">
+        <h1 class="text-xl font-semibold text-gray-900">舞队申请记录</h1>
+    </div>
+
+    <!-- 申请列表 -->
+    <div class="flex-1 overflow-y-auto ios-scroll" style="height: calc(100% - 44px - 48px - 80px);">
+        <!-- 申请项 -->
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-gray-900 font-medium text-lg">快乐广场舞队，广场舞，2023-05-15</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge pending">申请中</div>
+                <button class="detail-button">详情</button>
+            </div>
+        </div>
+
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-gray-900 font-medium text-lg">阳光健身队，健身操，2023-04-20</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge rejected">已拒绝</div>
+                <button class="detail-button">详情</button>
+            </div>
+        </div>
+
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-gray-900 font-medium text-lg">晨曦舞蹈队，交谊舞，2023-04-10</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge rejected">已拒绝</div>
+                <button class="detail-button">详情</button>
+            </div>
+        </div>
+
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-gray-900 font-medium text-lg">欢乐舞步队，广场舞，2023-03-25</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge rejected">已拒绝</div>
+                <button class="detail-button">详情</button>
+            </div>
+        </div>
+
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-gray-900 font-medium text-lg">活力舞蹈团，健身操，2023-03-15</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge rejected">已拒绝</div>
+                <button class="detail-button">详情</button>
+            </div>
+        </div>
+
+        <div class="application-item">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-gray-900 font-medium text-lg">夕阳红舞队，广场舞，2023-03-01</div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="status-badge rejected">已拒绝</div>
+                <button class="detail-button">详情</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部返回按钮 -->
+    <div class="h-20 bg-white flex justify-center items-center border-t border-gray-200">
+        <a href="profile.html" class="back-button">
+            返回
+        </a>
+    </div>
+    <script>
+        // 获取模态弹窗元素
+        const modal = document.getElementById('detailModal');
+        const closeModal = document.getElementById('closeModal');
+        const confirmButton = document.getElementById('confirmButton');
+        const rejectReasonContainer = document.getElementById('rejectReasonContainer');
+        
+        // 获取详情内容元素
+        const teamName = document.getElementById('teamName');
+        const danceType = document.getElementById('danceType');
+        const teamIntro = document.getElementById('teamIntro');
+        const rejectReason = document.getElementById('rejectReason');
+        
+        // 申请详情数据
+        const applicationDetails = [
+            {
+                name: "快乐广场舞队",
+                type: "广场舞",
+                intro: "快乐广场舞队是一支充满活力的舞蹈队伍，我们每天早晚在社区广场集体舞蹈，欢迎您的加入！",
+                status: "pending",
+                reason: ""
+            },
+            {
+                name: "阳光健身队",
+                type: "健身操",
+                intro: "阳光健身队专注于健身操的教学和锻炼，我们有专业的教练指导，适合各年龄段人群。",
+                status: "rejected",
+                reason: "您的申请与我们舞队的风格不太匹配，建议您尝试其他舞队。"
+            },
+            {
+                name: "晨曦舞蹈队",
+                type: "交谊舞",
+                intro: "晨曦舞蹈队是一支专业的交谊舞队伍，我们有丰富的表演经验和专业的教学团队。",
+                status: "rejected",
+                reason: "目前舞队成员已满，暂时无法接受新成员加入。"
+            },
+            {
+                name: "欢乐舞步队",
+                type: "广场舞",
+                intro: "欢乐舞步队成立于2018年，是一支充满活力的广场舞队伍，欢迎各位舞友加入。",
+                status: "rejected",
+                reason: "您的舞蹈经验不符合我们的要求，建议您先参加基础培训。"
+            },
+            {
+                name: "活力舞蹈团",
+                type: "健身操",
+                intro: "活力舞蹈团专注于健身操的教学和表演，我们有专业的教练团队和丰富的表演经验。",
+                status: "rejected",
+                reason: "您的年龄不在我们招收的范围内，建议您尝试其他适合的舞队。"
+            },
+            {
+                name: "夕阳红舞队",
+                type: "广场舞",
+                intro: "夕阳红舞队是一支专为老年人设计的舞蹈队伍，我们的舞蹈动作简单易学，适合老年人锻炼。",
+                status: "rejected",
+                reason: "您所在的地区与我们的活动地点距离较远，可能不便参加日常活动。"
+            }
+        ];
+        
+        // 为所有详情按钮添加点击事件
+        const detailButtons = document.querySelectorAll('.detail-button');
+        detailButtons.forEach((button, index) => {
+            button.addEventListener('click', () => {
+                showDetails(index);
+            });
+        });
+        
+        // 显示详情函数
+        function showDetails(index) {
+            const detail = applicationDetails[index];
+            
+            // 更新详情内容
+            teamName.textContent = detail.name;
+            danceType.textContent = detail.type;
+            teamIntro.textContent = detail.intro;
+            
+            // 根据状态显示或隐藏驳回理由
+            if (detail.status === "rejected") {
+                rejectReasonContainer.style.display = "block";
+                rejectReason.textContent = detail.reason;
+            } else {
+                rejectReasonContainer.style.display = "none";
+            }
+            
+            // 显示模态弹窗
+            modal.classList.add('active');
+        }
+        
+        // 关闭模态弹窗
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+        
+        confirmButton.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+        
+        // 点击模态弹窗外部关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html> 

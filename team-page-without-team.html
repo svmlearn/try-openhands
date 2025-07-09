@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的舞队</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ios-blue': '#007AFF',
+                        'ios-gray': '#8E8E93',
+                        'ios-light-gray': '#F2F2F7',
+                        'ios-orange': '#FF9500',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 全局重置样式 - 确保页面100%契合框架 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        /* 添加新的 CSS 变量 */
+        :root {
+             --brand-primary: #FF9500;      /* 经典亮橙 - 主操作 */
+             --brand-secondary: #F5846A;    /* 暖橙珊瑚色 - 点缀/进度条 */
+             --action-blue: #007AFF;      /* 经典蓝 - 次操作 */
+             --action-green: #34C759;     /* 经典绿 - 辅助操作 */
+
+             --bg-white: #FFFFFF;           /* 纯白 - 卡片背景 */
+             --bg-light: #FFF9F5;           /* 暖米色 - 页面背景 */
+             --bg-gray: #F7F2EE;            /* 暖灰色 - 元素背景 */
+             --bg-highlight: #FFEAD9;       /* 浅橙 - 选中项/图标背景 */
+             --bg-blur: rgba(255, 249, 245, 0.9); /* 暖米色模糊背景 */
+             --tag-blue-bg: #EBF5FF;        /* 浅蓝色背景 */
+
+             --text-primary: #333333;       /* 深灰 - 主要文字 */
+             --text-secondary: #757575;     /* 中灰 - 次要文字 */
+             --text-tips: #A39995;          /* 浅棕 - 提示文字 */
+             --text-white: #FFFFFF;         /* 白色文字 */
+             --text-link: var(--brand-primary); /* 链接色 - 主色 */
+
+             --border-base: #E5DCD8;        /* 暖灰边框/分割线 */
+             --divider: var(--border-base); /* 统一分割线 */
+             --error: #F5605C;              /* 暖红色 - 错误提示 */
+
+              /* 阴影 */
+              --shadow-color-base: rgba(51, 51, 51, 0.08);
+              --shadow-color-hover: rgba(51, 51, 51, 0.12);
+              --shadow-color-active: rgba(51, 51, 51, 0.15);
+              --shadow-color-strong: rgba(0, 0, 0, 0.15);
+              --shadow-color-primary-btn: rgba(255, 149, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #FF9400 0%, #FFFFFF 93.27%);
+            width: 375px;
+            height: 812px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-size: 16px;
+            color: var(--text-primary); /* 默认文字颜色 */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* 小程序UI区域 - 固定在顶部的纯白色不透明覆盖层 */
+        .miniprogram-ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 88px;
+            background-color: #FFFFFF;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-bar {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #1F2937;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .miniprogram-nav {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .miniprogram-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1F2937;
+        }
+        
+        .miniprogram-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .miniprogram-menu {
+            color: #6B7280;
+            font-size: 18px;
+        }
+        
+        .miniprogram-close {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #9CA3AF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            font-size: 12px;
+        }
+        
+        .title-bar {
+            height: 56px; /* 调整为标准标题栏高度 */
+            background-color: var(--bg-white); /* 标题栏背景 */
+            border-bottom: 1px solid var(--border-base); /* 标题栏下边框 */
+            color: var(--text-primary); /* 标题文字颜色 */
+        }
+        .bottom-nav {
+            height: 83px;
+            background-color: var(--bg-blur); /* 底部导航背景 */
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--divider); /* 底部导航上边框 */
+        }
+        .bottom-nav-item-inactive {
+            color: var(--text-secondary); /* 未选中项颜色 */
+        }
+        .bottom-nav-item-active {
+            color: var(--brand-primary); /* 选中项颜色 */
+        }
+        .action-card {
+            border: 3px dashed var(--border-base); /* 操作卡片边框 */
+            border-radius: 16px;
+            background-color: var(--bg-white); /* 操作卡片背景 */
+            transition: all 0.3s ease;
+            min-height: 160px;
+        }
+        .action-card:active {
+            background-color: var(--bg-gray); /* Active 状态背景 */
+            transform: scale(0.98);
+        }
+        .action-card-icon-bg-orange {
+            background-color: var(--bg-highlight); /* 创建舞队图标背景 */
+        }
+        .action-card-icon-color-orange {
+            color: var(--brand-primary); /* 创建舞队图标颜色 */
+        }
+        .action-card-icon-bg-blue {
+            background-color: var(--tag-blue-bg); /* 加入舞队图标背景 */
+        }
+        .action-card-icon-color-blue {
+            color: var(--action-blue); /* 加入舞队图标颜色 */
+        }
+        .action-card-text {
+            color: var(--text-primary); /* 操作卡片文字颜色 */
+        }
+        .prompt-title {
+            color: var(--text-primary); /* 提示主标题颜色 */
+        }
+        .prompt-text {
+            color: var(--text-secondary); /* 提示副标题颜色 */
+        }
+        .ios-scroll::-webkit-scrollbar { display: none; }
+        .ios-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- 小程序UI覆盖层 - 固定在顶部的纯白色区域 -->
+    <div class="miniprogram-ui-overlay">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>10:00</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>88%</span>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+        
+        <!-- 小程序导航栏 -->
+        <div class="miniprogram-nav">
+            <div class="miniprogram-title">静舞团小程序</div>
+            <div class="miniprogram-actions">
+                <i class="fas fa-ellipsis-h miniprogram-menu"></i>
+                <div class="miniprogram-close">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面内容区域 - 从系统UI（状态栏+小程序导航栏，共88px）下方开始 -->
+    <div class="pt-[88px] flex flex-col h-screen">
+        <!-- 标题栏 -->
+        <div class="title-bar flex items-center px-6">
+            <h1 class="text-3xl font-bold">我的舞队</h1>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 overflow-y-auto ios-scroll">
+            <div class="p-5 flex flex-col justify-center" style="min-height: calc(100% - 40px);">
+                <!-- 提示文本 -->
+                <div class="text-center mb-10">
+                    <h2 class="text-2xl font-semibold mb-3 prompt-title">您还未加入任何舞队</h2>
+                    <p class="text-lg prompt-text">创建或加入一个舞队，开始您的舞蹈之旅</p>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="grid grid-cols-2 gap-6 px-4">
+                    <a href="create-team-form.html" class="action-card flex flex-col items-center justify-center p-8">
+                        <div class="w-20 h-20 rounded-full action-card-icon-bg-orange flex items-center justify-center mb-4">
+                            <i class="fas fa-plus action-card-icon-color-orange text-3xl"></i>
+                        </div>
+                        <span class="text-xl font-medium action-card-text">创建舞队</span>
+                    </a>
+
+                    <a href="join-team-form.html" class="action-card flex flex-col items-center justify-center p-8">
+                        <div class="w-20 h-20 rounded-full action-card-icon-bg-blue flex items-center justify-center mb-4">
+                            <i class="fas fa-user-plus action-card-icon-color-blue text-3xl"></i>
+                        </div>
+                        <span class="text-xl font-medium action-card-text">加入舞队</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bottom-nav flex justify-around items-center px-6">
+            <a href="display.html" class="flex flex-col items-center bottom-nav-item-inactive">
+                <i class="fas fa-music text-3xl"></i>
+                <span class="text-base mt-1 text-center">播放</span>
+            </a>
+            <a href="community.html" class="flex flex-col items-center bottom-nav-item-inactive">
+                <i class="fas fa-users text-3xl"></i>
+                <span class="text-base mt-1 text-center">社区</span>
+            </a>
+            <div class="flex flex-col items-center bottom-nav-item-active"> <!-- 当前选中页 -->
+                <i class="fas fa-user-group text-3xl"></i>
+                <span class="text-base mt-1 font-medium text-center">舞队</span>
+            </div>
+            <a href="profile.html" class="flex flex-col items-center bottom-nav-item-inactive">
+                <i class="fas fa-user text-3xl"></i>
+                <span class="text-base mt-1 text-center">我的</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

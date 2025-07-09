@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建舞队</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ios-blue': '#007AFF',
+                        'ios-gray': '#8E8E93',
+                        'ios-light-gray': '#F2F2F7',
+                        'ios-orange': '#FF9500',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 全局重置样式 - 确保页面100%契合框架 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        :root {
+            --brand-primary: #FF9400;      /* 经典亮橙 - 主操作 */
+            --brand-secondary: #F5846A;    /* 暖橙珊瑚色 - 点缀/进度条 */
+            --action-blue: #007AFF;        /* 经典蓝 - 次操作 */
+            --action-green: #34C759;       /* 经典绿 - 辅助操作 */
+
+            --bg-white: #FFFFFF;           /* 纯白 - 卡片背景 */
+            --bg-light: #FFF9F5;           /* 暖米色 - 页面背景 */
+            --bg-gray: #F7F2EE;            /* 暖灰色 - 元素背景 */
+            --bg-highlight: #FFEAD9;       /* 浅橙 - 选中项背景 */
+            --bg-blur: rgba(255, 249, 245, 0.9); /* 暖米色模糊背景 */
+
+            --text-primary: #333333;       /* 深灰 - 主要文字 */
+            --text-secondary: #757575;     /* 中灰 - 次要文字 */
+            --text-tips: #A39995;          /* 浅棕 - 提示文字 */
+            --text-white: #FFFFFF;         /* 白色文字 */
+            --text-link: var(--brand-primary); /* 链接色 - 主色 */
+
+            --border-base: #E5DCD8;        /* 暖灰边框/分割线 */
+            --error: #F5605C;              /* 暖红色 - 错误提示 */
+            --success: #4CAF50;            /* 成功绿色 */
+            --divider: var(--border-base); /* 统一分割线 */
+
+            /* 阴影 */
+            --shadow-color-base: rgba(51, 51, 51, 0.08);
+            --shadow-color-hover: rgba(51, 51, 51, 0.12);
+            --shadow-color-active: rgba(51, 51, 51, 0.15);
+            --shadow-color-primary-btn: rgba(255, 149, 0, 0.3);
+            --shadow-color-primary-focus: rgba(255, 149, 0, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #FF9400 0%, #FFFFFF 93.27%);
+            width: 375px;
+            height: 812px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        /* 小程序UI覆盖层 - 固定在顶部的纯白色不透明覆盖层 */
+        .miniprogram-ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 88px;
+            background-color: #FFFFFF;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 状态栏样式 */
+        .status-bar {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #1F2937;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* 小程序导航栏样式 */
+        .miniprogram-nav {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .miniprogram-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1F2937;
+        }
+
+        .miniprogram-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .miniprogram-menu {
+            color: #6B7280;
+            font-size: 18px;
+        }
+
+        .miniprogram-close {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #9CA3AF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            font-size: 12px;
+        }
+
+        .ios-scroll::-webkit-scrollbar { 
+            display: none; 
+        }
+        .ios-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            background-color: var(--bg-white);
+            border-radius: 12px;
+            padding: 16px;
+            width: 100%;
+            border: 1px solid var(--border-base);
+            font-size: 16px;
+            outline: none;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 2px var(--shadow-color-primary-focus);
+        }
+
+        .form-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-textarea {
+            resize: none;
+            min-height: 120px;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23757575'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 20px;
+        }
+
+        .image-upload {
+            width: 100%;
+            height: 180px;
+            border: 2px dashed var(--border-base);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: var(--bg-white);
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .image-upload:hover {
+            border-color: var(--brand-primary);
+            background-color: var(--bg-highlight);
+        }
+
+        .image-upload.has-image {
+            border-style: solid;
+            border-color: var(--brand-primary);
+            background-color: var(--bg-highlight);
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--brand-primary);
+            color: var(--text-white);
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px var(--shadow-color-primary-btn);
+            border: none;
+            cursor: pointer;
+        }
+
+        .submit-button:disabled {
+            background-color: var(--text-secondary);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .submit-button:active:not(:disabled) {
+            transform: scale(0.98);
+            background-color: #E68A00;
+            box-shadow: 0 2px 8px var(--shadow-color-primary-btn);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-base);
+        }
+
+        /* 舞种选择标签样式 */
+        .dance-types-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .dance-type-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: var(--bg-white);
+            border: 2px solid var(--border-base);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dance-type-item:hover {
+            border-color: var(--brand-primary);
+            background-color: var(--bg-highlight);
+        }
+
+        .dance-type-item.selected {
+            border-color: var(--brand-primary);
+            background-color: var(--bg-highlight);
+        }
+
+        .dance-type-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--brand-primary);
+        }
+
+        .dance-type-label {
+            font-size: 16px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* 地区选择样式 */
+        .location-selectors {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .location-select {
+            flex: 1;
+            min-width: 80px;
+            font-size: 14px;
+            padding: 12px;
+        }
+
+        .location-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-base);
+            background-color: var(--bg-white);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .action-btn.location-btn {
+            background-color: var(--brand-primary);
+            color: var(--text-white);
+            border-color: var(--brand-primary);
+        }
+
+        .action-btn:hover {
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .action-btn.location-btn:hover {
+            background-color: #e8840a;
+            color: var(--text-white);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 验证提示样式 */
+        .validation-message {
+            font-size: 14px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .validation-error {
+            color: var(--error);
+        }
+
+        .validation-success {
+            color: var(--success);
+        }
+
+        .info-tip {
+            background-color: var(--bg-highlight);
+            color: var(--brand-primary);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 小程序UI覆盖层 - 固定在顶部的纯白色区域 -->
+    <div class="miniprogram-ui-overlay">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>10:00</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>88%</span>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+        
+        <!-- 小程序导航栏 -->
+        <div class="miniprogram-nav">
+            <div style="display: flex; align-items: center;">
+                <a href="team-page-without-team.html" style="margin-right: 12px; color: var(--brand-primary); font-size: 18px;">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <div class="miniprogram-title">创建舞队</div>
+            </div>
+            <div class="miniprogram-actions">
+                <i class="fas fa-ellipsis-h miniprogram-menu"></i>
+                <div class="miniprogram-close">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面内容区域 - 从系统UI下方开始，保留88px顶部空间 -->
+    <div class="pt-[88px] flex flex-col h-screen">
+        <!-- 内容区域 -->
+        <div class="flex-1 overflow-y-auto ios-scroll p-5">
+            <form id="create-team-form">
+                <!-- 基本信息 -->
+                <div class="mb-8">
+                    <h2 class="section-title">基本信息</h2>
+
+                    <div class="form-group">
+                        <label class="form-label" for="team-name">舞队名称 *</label>
+                        <input type="text" id="team-name" class="form-input" placeholder="请输入舞队名称（2-20个字符）" maxlength="20">
+                        <div id="name-validation" class="validation-message hidden">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">舞队头像</label>
+                        <div class="image-upload" id="avatar-upload">
+                            <i class="fas fa-image text-4xl mb-3"></i>
+                            <p class="text-base">点击上传舞队头像</p>
+                            <p class="text-sm mt-1">支持JPG/PNG，不超过2MB</p>
+                        </div>
+                        <input type="file" id="avatar-input" accept="image/jpeg,image/png" style="display: none;">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="team-desc">舞队简介</label>
+                        <textarea id="team-desc" class="form-textarea" placeholder="介绍一下你们的舞队吧~（最多200字）" maxlength="200"></textarea>
+                        <div class="text-right text-sm" style="color: var(--text-secondary); margin-top: 6px;">
+                            <span id="desc-count">0</span>/200
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 舞种选择 -->
+                <div class="mb-8">
+                    <h2 class="section-title">舞种选择 *</h2>
+                    <div class="info-tip mb-4">
+                        <i class="fas fa-info-circle"></i>
+                        <span>请选择您舞队的主要舞种（最多选择3个）</span>
+                    </div>
+                    
+                    <div class="dance-types-grid">
+                        <div class="dance-type-item" data-value="广场舞">
+                            <input type="checkbox" id="dance-1" class="dance-type-checkbox" value="广场舞">
+                            <label for="dance-1" class="dance-type-label">广场舞</label>
+                        </div>
+                        <div class="dance-type-item" data-value="健身操">
+                            <input type="checkbox" id="dance-2" class="dance-type-checkbox" value="健身操">
+                            <label for="dance-2" class="dance-type-label">健身操</label>
+                        </div>
+                        <div class="dance-type-item" data-value="交谊舞">
+                            <input type="checkbox" id="dance-3" class="dance-type-checkbox" value="交谊舞">
+                            <label for="dance-3" class="dance-type-label">交谊舞</label>
+                        </div>
+                        <div class="dance-type-item" data-value="拉丁舞">
+                            <input type="checkbox" id="dance-4" class="dance-type-checkbox" value="拉丁舞">
+                            <label for="dance-4" class="dance-type-label">拉丁舞</label>
+                        </div>
+                        <div class="dance-type-item" data-value="民族舞">
+                            <input type="checkbox" id="dance-5" class="dance-type-checkbox" value="民族舞">
+                            <label for="dance-5" class="dance-type-label">民族舞</label>
+                        </div>
+                        <div class="dance-type-item" data-value="太极">
+                            <input type="checkbox" id="dance-6" class="dance-type-checkbox" value="太极">
+                            <label for="dance-6" class="dance-type-label">太极</label>
+                        </div>
+                    </div>
+                    <div id="dance-validation" class="validation-message hidden">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span></span>
+                    </div>
+                </div>
+
+                <!-- 活动地点 -->
+                <div class="mb-8">
+                    <h2 class="section-title">活动地点 *</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">地区选择</label>
+                        <div class="location-selectors">
+                            <select class="location-select" id="province-select">
+                                <option value="">省份</option>
+                                <option value="guangdong">广东省</option>
+                                <option value="fujian">福建省</option>
+                                <option value="zhejiang">浙江省</option>
+                                <option value="jiangsu">江苏省</option>
+                            </select>
+                            <select class="location-select" id="city-select" disabled>
+                                <option value="">城市</option>
+                            </select>
+                            <select class="location-select" id="district-select" disabled>
+                                <option value="">区域</option>
+                            </select>
+                        </div>
+                        <div class="location-actions">
+                            <button type="button" class="action-btn location-btn" id="location-btn">
+                                <i class="fas fa-location-arrow mr-1"></i>定位
+                            </button>
+                        </div>
+                        <div id="location-validation" class="validation-message hidden">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span></span>
+                        </div>
+                    </div>
+
+                    <!-- <div class="form-group">
+                        <label class="form-label" for="detail-address">详细地址</label>
+                        <input type="text" id="detail-address" class="form-input" placeholder="如桃园小区、中山公园等（方便队员找到你们）" maxlength="50">
+                        <div class="text-right text-sm" style="color: var(--text-secondary); margin-top: 6px;">
+                            <span id="address-count">0</span>/50
+                        </div>
+                    </div> -->
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="mb-8">
+                    <button type="submit" id="submit-btn" class="submit-button" disabled>
+                        创建舞队
+                    </button>
+                </div>
+
+                <div class="text-center text-sm mb-8" style="color: var(--text-secondary);">
+                    创建舞队即表示您同意
+                    <a href="#" style="color: var(--brand-primary);">《舞队管理规范》</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 地区数据 - 三级联动
+        const locationData = {
+            guangdong: {
+                name: '广东省',
+                cities: {
+                    shenzhen: {
+                        name: '深圳市',
+                        districts: {
+                            nanshan: { name: '南山区' },
+                            futian: { name: '福田区' },
+                            luohu: { name: '罗湖区' },
+                            baoan: { name: '宝安区' }
+                        }
+                    },
+                    guangzhou: {
+                        name: '广州市',
+                        districts: {
+                            tianhe: { name: '天河区' },
+                            yuexiu: { name: '越秀区' },
+                            haizhu: { name: '海珠区' }
+                        }
+                    }
+                }
+            },
+            fujian: {
+                name: '福建省',
+                cities: {
+                    xiamen: {
+                        name: '厦门市',
+                        districts: {
+                            siming: { name: '思明区' },
+                            huli: { name: '湖里区' },
+                            jimei: { name: '集美区' }
+                        }
+                    },
+                    fuzhou: {
+                        name: '福州市',
+                        districts: {
+                            gulou: { name: '鼓楼区' },
+                            taijiang: { name: '台江区' }
+                        }
+                    }
+                }
+            }
+        };
+
+        // DOM元素
+        const teamNameInput = document.getElementById('team-name');
+        const avatarUpload = document.getElementById('avatar-upload');
+        const avatarInput = document.getElementById('avatar-input');
+        const teamDescTextarea = document.getElementById('team-desc');
+        const descCount = document.getElementById('desc-count');
+        const addressCount = document.getElementById('address-count');
+        const detailAddressInput = document.getElementById('detail-address');
+        const provinceSelect = document.getElementById('province-select');
+        const citySelect = document.getElementById('city-select');
+        const districtSelect = document.getElementById('district-select');
+        const locationBtn = document.getElementById('location-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const createTeamForm = document.getElementById('create-team-form');
+
+        // 舞队名称验证
+        let nameCheckTimeout;
+        teamNameInput.addEventListener('input', function() {
+            const name = this.value.trim();
+            clearTimeout(nameCheckTimeout);
+            
+            if (name.length < 2) {
+                showValidation('name-validation', 'error', '舞队名称至少需要2个字符');
+                return;
+            }
+            if (name.length > 20) {
+                showValidation('name-validation', 'error', '舞队名称不能超过20个字符');
+                return;
+            }
+            
+            // 模拟异步名称检查
+            nameCheckTimeout = setTimeout(() => {
+                checkTeamName(name);
+            }, 500);
+        });
+
+        function checkTeamName(name) {
+            // 模拟的已存在名称
+            const existingNames = ['测试舞队', '花样年华', '轻舞飞扬'];
+            
+            if (existingNames.includes(name)) {
+                showValidation('name-validation', 'error', '该舞队名称已被使用，请换一个');
+            } else {
+                showValidation('name-validation', 'success', '舞队名称可用');
+            }
+            checkFormValidity();
+        }
+
+        // 头像上传
+        avatarUpload.addEventListener('click', () => {
+            avatarInput.click();
+        });
+
+        avatarInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('图片大小不能超过2MB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatarUpload.innerHTML = `<img src="${e.target.result}" class="image-preview" alt="舞队头像">`;
+                    avatarUpload.classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 简介字数统计
+        teamDescTextarea.addEventListener('input', function() {
+            descCount.textContent = this.value.length;
+        });
+
+        // 详细地址字数统计
+        detailAddressInput.addEventListener('input', function() {
+            addressCount.textContent = this.value.length;
+        });
+
+        // 舞种选择
+        const danceTypeItems = document.querySelectorAll('.dance-type-item');
+        const danceTypeCheckboxes = document.querySelectorAll('.dance-type-checkbox');
+        
+        danceTypeItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const checkbox = this.querySelector('.dance-type-checkbox');
+                    checkbox.click();
+                }
+            });
+        });
+
+        danceTypeCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const item = this.closest('.dance-type-item');
+                const selectedCount = document.querySelectorAll('.dance-type-checkbox:checked').length;
+                
+                if (this.checked) {
+                    if (selectedCount > 3) {
+                        this.checked = false;
+                        showValidation('dance-validation', 'error', '最多只能选择3个舞种');
+                        return;
+                    }
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+                
+                if (selectedCount <= 3) {
+                    hideValidation('dance-validation');
+                }
+                
+                checkFormValidity();
+            });
+        });
+
+        // 地区三级联动
+        function updateCities(provinceKey) {
+            citySelect.innerHTML = '<option value="">城市</option>';
+            districtSelect.innerHTML = '<option value="">区域</option>';
+            
+            if (provinceKey && locationData[provinceKey]) {
+                const cities = locationData[provinceKey].cities;
+                Object.keys(cities).forEach(cityKey => {
+                    const option = document.createElement('option');
+                    option.value = cityKey;
+                    option.textContent = cities[cityKey].name;
+                    citySelect.appendChild(option);
+                });
+                citySelect.disabled = false;
+            } else {
+                citySelect.disabled = true;
+            }
+            districtSelect.disabled = true;
+            checkFormValidity();
+        }
+
+        function updateDistricts(provinceKey, cityKey) {
+            districtSelect.innerHTML = '<option value="">区域</option>';
+            
+            if (provinceKey && cityKey && locationData[provinceKey] && locationData[provinceKey].cities[cityKey]) {
+                const districts = locationData[provinceKey].cities[cityKey].districts;
+                Object.keys(districts).forEach(districtKey => {
+                    const option = document.createElement('option');
+                    option.value = districtKey;
+                    option.textContent = districts[districtKey].name;
+                    districtSelect.appendChild(option);
+                });
+                districtSelect.disabled = false;
+            } else {
+                districtSelect.disabled = true;
+            }
+            checkFormValidity();
+        }
+
+        provinceSelect.addEventListener('change', (e) => {
+            updateCities(e.target.value);
+        });
+
+        citySelect.addEventListener('change', (e) => {
+            updateDistricts(provinceSelect.value, e.target.value);
+        });
+
+        districtSelect.addEventListener('change', () => {
+            checkFormValidity();
+        });
+
+        // 一键定位
+        locationBtn.addEventListener('click', () => {
+            locationBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>定位中...';
+            locationBtn.disabled = true;
+            
+            // 模拟定位
+            setTimeout(() => {
+                provinceSelect.value = 'fujian';
+                updateCities('fujian');
+                citySelect.value = 'xiamen';
+                updateDistricts('fujian', 'xiamen');
+                districtSelect.value = 'siming';
+                
+                locationBtn.innerHTML = '<i class="fas fa-check mr-1"></i>定位成功';
+                locationBtn.style.backgroundColor = 'var(--success)';
+                
+                setTimeout(() => {
+                    locationBtn.innerHTML = '<i class="fas fa-location-arrow mr-1"></i>定位';
+                    locationBtn.style.backgroundColor = 'var(--brand-primary)';
+                    locationBtn.disabled = false;
+                }, 2000);
+                
+                checkFormValidity();
+            }, 1500);
+        });
+
+        // 表单验证
+        function checkFormValidity() {
+            const name = teamNameInput.value.trim();
+            const selectedDances = document.querySelectorAll('.dance-type-checkbox:checked');
+            const province = provinceSelect.value;
+            const city = citySelect.value;
+            const district = districtSelect.value;
+            
+            const isNameValid = name.length >= 2 && name.length <= 20 && !document.querySelector('#name-validation .validation-error');
+            const isDanceValid = selectedDances.length > 0 && selectedDances.length <= 3;
+            const isLocationValid = province && city && district;
+            
+            const isFormValid = isNameValid && isDanceValid && isLocationValid;
+            
+            submitBtn.disabled = !isFormValid;
+            
+            // 验证舞种选择
+            if (selectedDances.length === 0) {
+                showValidation('dance-validation', 'error', '请至少选择一个舞种');
+            } else {
+                hideValidation('dance-validation');
+            }
+            
+            // 验证地区选择
+            if (!province || !city || !district) {
+                showValidation('location-validation', 'error', '请选择完整的活动地区');
+            } else {
+                hideValidation('location-validation');
+            }
+        }
+
+        function showValidation(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            const span = element.querySelector('span');
+            const icon = element.querySelector('i');
+            
+            element.classList.remove('hidden');
+            element.className = `validation-message validation-${type}`;
+            
+            if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle';
+            } else {
+                icon.className = 'fas fa-check-circle';
+            }
+            
+            span.textContent = message;
+        }
+
+        function hideValidation(elementId) {
+            const element = document.getElementById(elementId);
+            element.classList.add('hidden');
+        }
+
+        // 表单提交
+        createTeamForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (submitBtn.disabled) return;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>创建中...';
+            submitBtn.disabled = true;
+            
+            // 收集表单数据
+            const formData = {
+                name: teamNameInput.value.trim(),
+                description: teamDescTextarea.value.trim(),
+                danceTypes: Array.from(document.querySelectorAll('.dance-type-checkbox:checked')).map(cb => cb.value),
+                location: {
+                    province: provinceSelect.options[provinceSelect.selectedIndex].text,
+                    city: citySelect.options[citySelect.selectedIndex].text,
+                    district: districtSelect.options[districtSelect.selectedIndex].text,
+                    detail: detailAddressInput.value.trim()
+                }
+            };
+            
+            console.log('提交数据:', formData);
+            
+            // 模拟提交
+            setTimeout(() => {
+                alert('舞队创建成功！');
+                window.location.href = 'team-management.html';
+            }, 2000);
+        });
+
+        // 初始化
+        checkFormValidity();
+    </script>
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舞队详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ios-blue': '#007AFF',
+                        'ios-gray': '#8E8E93',
+                        'ios-light-gray': '#F2F2F7',
+                        'ios-orange': '#FF9500',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 全局重置样式 - 确保页面100%契合框架 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        :root {
+             --brand-primary: #FF9500;      /* 经典亮橙 - 主操作 */
+             --brand-secondary: #F5846A;    /* 暖橙珊瑚色 - 点缀/进度条 */
+             --action-blue: #007AFF;      /* 经典蓝 - 次操作 */
+             --action-green: #34C759;     /* 经典绿 - 辅助操作 */
+
+             --bg-white: #FFFFFF;           /* 纯白 - 卡片背景 */
+             --bg-light: #FFF9F5;           /* 暖米色 - 页面背景 */
+             --bg-gray: #F7F2EE;            /* 暖灰色 - 元素背景 */
+             --bg-highlight: #FFEAD9;       /* 浅橙 - 选中项背景 */
+             --bg-blur: rgba(255, 249, 245, 0.9); /* 暖米色模糊背景 */
+
+             --text-primary: #333333;       /* 深灰 - 主要文字 */
+             --text-secondary: #757575;     /* 中灰 - 次要文字 */
+             --text-tips: #A39995;          /* 浅棕 - 提示文字 (可保留或调整) */
+             --text-white: #FFFFFF;         /* 白色文字 */
+             --text-link: var(--brand-primary); /* 链接色 - 主色 */
+
+             --border-base: #E5DCD8;        /* 暖灰边框/分割线 */
+             --error: #F5605C;              /* 暖红色 - 错误提示 */
+             --divider: var(--border-base); /* 统一分割线 */
+
+             /* 示例：蓝色标签颜色 */
+             --tag-blue-text: var(--action-blue);
+             --tag-blue-bg: #EBF5FF; /* 浅蓝色背景 */
+
+              /* 阴影 */
+              --shadow-color-base: rgba(51, 51, 51, 0.08);
+              --shadow-color-hover: rgba(51, 51, 51, 0.12);
+              --shadow-color-active: rgba(51, 51, 51, 0.15);
+              --shadow-color-strong: rgba(0, 0, 0, 0.15); /* 更强的阴影 */
+              --shadow-color-primary-btn: rgba(255, 149, 0, 0.3); /* 主按钮阴影 */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #FF9400 0%, #FFFFFF 93.27%);
+            width: 375px;
+            height: 812px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-size: 16px;
+            color: var(--text-primary); /* 默认文字颜色 */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* 小程序UI区域 - 固定在顶部的纯白色不透明覆盖层 */
+        .miniprogram-ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 88px;
+            background-color: #FFFFFF;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-bar {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #1F2937;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .miniprogram-nav {
+            height: 44px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .miniprogram-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1F2937;
+        }
+        
+        .miniprogram-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .miniprogram-menu {
+            color: #6B7280;
+            font-size: 18px;
+        }
+        
+        .miniprogram-close {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #9CA3AF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            font-size: 12px;
+        }
+        
+        .ios-scroll::-webkit-scrollbar { display: none; }
+        .ios-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+        .cover-gradient {
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
+        }
+        .team-avatar {
+            border: 6px solid var(--bg-white); /* 白色边框 */
+            box-shadow: 0 6px 16px var(--shadow-color-strong);
+            width: 100px !important;
+            height: 100px !important;
+            background-color: var(--bg-gray); /* 占位背景色 */
+        }
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            overflow: hidden;
+            border: 3px solid var(--bg-white); /* 白色边框 */
+            box-shadow: 0 3px 6px var(--shadow-color-strong);
+            background-color: var(--bg-gray); /* 占位背景色 */
+        }
+        .member-placeholder {
+             background-color: var(--bg-gray);
+         }
+         .member-placeholder span {
+             color: var(--text-secondary);
+         }
+        .join-button {
+            background-color: var(--brand-primary); /* 主按钮颜色 */
+            color: var(--text-white); /* 白色文字 */
+            border-radius: 28px;
+            padding: 16px 32px;
+            font-size: 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-height: 60px;
+            min-width: 180px;
+            box-shadow: 0 4px 12px var(--shadow-color-primary-btn);
+        }
+        .join-button:active {
+            transform: scale(0.98);
+            background-color: #E68A00; /* 稍暗的主色 */
+            box-shadow: 0 2px 8px var(--shadow-color-primary-btn);
+        }
+        .join-button.applied {
+            background-color: var(--text-secondary); /* 已申请状态 - 灰色 */
+            color: var(--text-white);
+            cursor: not-allowed;
+        }
+        .join-button.applied:active {
+            transform: none;
+            background-color: var(--text-secondary);
+            box-shadow: 0 4px 12px var(--shadow-color-base);
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary); /* 主要文字颜色 */
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-base); /* 边框颜色 */
+        }
+        .back-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px var(--shadow-color-strong);
+            color: var(--text-primary); /* 返回按钮图标颜色 */
+        }
+        .back-button:active {
+            background-color: rgba(255, 255, 255, 0.7);
+            transform: scale(0.95);
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .info-label {
+            width: 100px;
+            font-size: 18px;
+            color: var(--text-secondary); /* 次要文字颜色 */
+            font-weight: 500;
+        }
+        .info-value {
+            font-size: 18px;
+            color: var(--text-primary); /* 主要文字颜色 */
+            flex: 1;
+            font-weight: 500;
+        }
+        .dance-tag { /* 示例蓝色标签 */
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: var(--tag-blue-bg); /* 浅蓝背景 */
+            color: var(--tag-blue-text); /* 蓝色文字 */
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 500;
+            margin-right: 10px;
+            box-shadow: 0 2px 4px var(--shadow-color-base);
+        }
+        .intro-text {
+            color: var(--text-secondary); /* 介绍文字颜色 */
+         }
+         .hint-box {
+             color: var(--text-secondary); /* 提示文字颜色 */
+             background-color: var(--bg-gray); /* 提示背景 */
+         }
+    </style>
+</head>
+<body>
+    <!-- 小程序UI覆盖层 - 固定在顶部的纯白色区域 -->
+    <div class="miniprogram-ui-overlay">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>10:00</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>88%</span>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+        
+        <!-- 小程序导航栏 -->
+        <div class="miniprogram-nav">
+            <div class="miniprogram-title">静舞团小程序</div>
+            <div class="miniprogram-actions">
+                <i class="fas fa-ellipsis-h miniprogram-menu"></i>
+                <div class="miniprogram-close">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面内容区域 - 从系统UI（状态栏+小程序导航栏，共88px）下方开始 -->
+    <div class="pt-[88px] flex flex-col h-screen">
+        <!-- 封面区域 -->
+        <div class="relative">
+            <img src="https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+                 alt="舞队封面" class="w-full h-72 object-cover">
+            <div class="cover-gradient absolute bottom-0 left-0 right-0 h-40"></div>
+
+            <!-- 返回按钮 -->
+            <a href="community.html" class="back-button absolute top-4 left-5">
+                <i class="fas fa-chevron-left text-xl"></i>
+            </a>
+
+            <!-- 舞队名称 -->
+            <div class="absolute bottom-6 left-6 right-6 text-white">
+                <h1 class="text-3xl font-bold" style="color: var(--text-white);">花样年华老年舞队</h1>
+            </div>
+        </div>
+
+        <!-- 舞队信息 -->
+        <div class="flex-1 overflow-y-auto ios-scroll">
+            <div class="p-6">
+                <!-- 舞队基本信息 -->
+                <div class="flex flex-col items-center mb-8">
+                    <div class="team-avatar w-24 h-24 rounded-full overflow-hidden mb-5">
+                        <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                             alt="舞队头像" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center mb-4 justify-center">
+                        <span class="text-xl mr-3" style="color: var(--text-secondary);">4个成员</span>
+                        <div class="flex -space-x-3">
+                            <div class="member-avatar">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                                     alt="成员头像" class="w-full h-full object-cover">
+                            </div>
+                            <div class="member-avatar">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                                     alt="成员头像" class="w-full h-full object-cover">
+                            </div>
+                            <div class="member-avatar">
+                                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+                                     alt="成员头像" class="w-full h-full object-cover">
+                            </div>
+                            <div class="member-avatar flex items-center justify-center member-placeholder"> <!-- 应用占位符样式 -->
+                                <span class="text-base">+1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="joinButton" class="join-button w-full flex items-center justify-center" onclick="handleJoinTeam()">
+                        加入舞队
+                    </button>
+                </div>
+
+                <!-- 舞队详细信息 -->
+                <div class="rounded-xl p-6 mb-8 shadow-md" style="background-color: var(--bg-white);"> <!-- 使用变量 -->
+                    <div class="info-item">
+                        <div class="info-label">舞种</div>
+                        <div class="info-value">
+                            <span class="dance-tag">佳木斯</span> <!-- 应用标签样式 -->
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">舞队领队</div>
+                        <div class="info-value">花样飞飞</div>
+                    </div>
+                </div>
+
+                <!-- 舞队介绍 -->
+                <div class="mb-8">
+                    <h2 class="section-title">舞队介绍</h2>
+                    <p class="text-lg leading-relaxed intro-text"> <!-- 应用介绍文字样式 -->
+                        以花样飞飞为为首的花样年华广场舞舞队在社区居委会的关心下，在社区居民的支持下，组织了一支充满活力的舞蹈队伍。我们致力于推广健康的生活方式，丰富老年人的文化生活。
+                    </p>
+                    <p class="text-lg leading-relaxed mt-4 intro-text"> <!-- 应用介绍文字样式 -->
+                        我们的舞队成员来自各行各业的退休老人，大家在这里找到了共同的兴趣爱好，结交了新朋友，享受舞蹈带来的快乐。
+                    </p>
+                </div>
+
+                <!-- 提示信息 -->
+                <div class="text-center text-lg mb-10 p-4 rounded-xl hint-box"> <!-- 应用提示框样式 -->
+                    加入舞队后可查看更多信息和参与活动
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let hasApplied = false; // 记录是否已申请
+
+        function handleJoinTeam() {
+            const button = document.getElementById('joinButton');
+            
+            if (hasApplied) {
+                // 已申请状态，不执行任何操作
+                return;
+            }
+            
+            // 模拟提交申请的过程
+            button.innerHTML = '申请中...';
+            button.disabled = true;
+            
+            // 模拟网络请求延迟
+            setTimeout(() => {
+                // 申请成功，更新按钮状态
+                hasApplied = true;
+                button.innerHTML = '已申请';
+                button.classList.add('applied');
+                button.disabled = true;
+                
+                // 显示成功提示
+                showToast('申请已提交，等待领队审批');
+            }, 1000);
+        }
+        
+        function showToast(message) {
+            // 创建提示框
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 16px;
+                z-index: 9999;
+                animation: fadeInOut 2s ease-in-out;
+            `;
+            toast.textContent = message;
+            
+            // 添加动画样式
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInOut {
+                    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 显示提示
+            document.body.appendChild(toast);
+            
+            // 2秒后移除
+            setTimeout(() => {
+                document.body.removeChild(toast);
+                document.head.removeChild(style);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

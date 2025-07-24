@@ -78,15 +78,32 @@
 
 1. 克隆项目到本地：
 ```bash
-git clone https://github.com/[your-username]/jingwutuan-ui-design.git
+git clone https://github.com/svmlearn/try-openhands.git
 ```
 
 2. 进入项目目录：
 ```bash
-cd jingwutuan-ui-design
+cd try-openhands
 ```
 
 3. 使用浏览器打开 `index.html` 文件即可查看完整的UI设计展示系统
+
+### 本地开发服务器（推荐）
+
+为了获得最佳体验，建议使用本地HTTP服务器运行项目：
+
+```bash
+# 使用Python内置服务器
+python -m http.server 8000
+
+# 或使用Node.js的http-server
+npx http-server
+
+# 或使用PHP内置服务器
+php -S localhost:8000
+```
+
+然后在浏览器中访问 `http://localhost:8000`
 
 ## 在线预览
 
@@ -119,6 +136,23 @@ cd jingwutuan-ui-design
 ## 开发说明
 
 本项目采用纯前端技术栈，所有页面均为静态HTML文件，可直接在浏览器中运行。设计遵循小程序开发规范，预留了88px的顶部覆盖层空间。
+
+### 浏览器兼容性
+
+- **推荐浏览器**：Chrome 90+, Safari 14+, Firefox 88+, Edge 90+
+- **移动端**：iOS Safari 14+, Chrome Mobile 90+
+- **注意事项**：部分CSS特性需要现代浏览器支持
+
+### 常见问题
+
+**Q: 为什么某些页面显示不正常？**
+A: 请确保使用HTTP服务器访问，而不是直接打开HTML文件。某些功能需要HTTP协议支持。
+
+**Q: 如何在移动设备上预览？**
+A: 启动本地服务器后，在同一网络下的移动设备上访问电脑的IP地址和端口号。
+
+**Q: 页面加载缓慢怎么办？**
+A: 项目使用了CDN资源（Tailwind CSS、Font Awesome），请确保网络连接正常。
 
 ## 版权信息
 
